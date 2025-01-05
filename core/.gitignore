@@ -4,3 +4,11 @@ _ReSharper.*
 bin
 obj
 packages
+.vs
+VeggieMarketApi/.vs
+VeggieMarketConsole/.vs
+VeggieMarketDataProcessor/.vs
+VeggieMarketDataReader/.vs
+VeggieMarketDataStore/.vs
+VeggieMarketLogger/.vs
+VeggieMarketScraper/.vs
