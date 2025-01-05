@@ -63,22 +63,24 @@
     <Compile Include="DataStorageService.cs" />
     <Compile Include="DbInterfaces\DbService.cs" />
     <Compile Include="DbInterfaces\IMarketDbService.cs" />
+    <Compile Include="DbInterfaces\IMetadataDbService.cs" />
     <Compile Include="DbInterfaces\IProcessedProductPriceDbService.cs" />
     <Compile Include="DbInterfaces\IProductDbService.cs" />
     <Compile Include="DbInterfaces\IProductPriceDbService.cs" />
     <Compile Include="DbInterfaces\IProductTypeDbService.cs" />
-    <Compile Include="MarketDbService.cs" />
-    <Compile Include="ProcessedProductPriceDbService.cs" />
-    <Compile Include="ProductPriceDbProcessor.cs" />
-    <Compile Include="ProductPriceDbService.cs" />
-    <Compile Include="ProductDbService.cs" />
+    <Compile Include="DbServices\MarketDbService.cs" />
+    <Compile Include="Models\DatePeriod.cs" />
+    <Compile Include="DbServices\ProcessedProductPriceDbService.cs" />
+    <Compile Include="DbServices\ProductPriceDbProcessor.cs" />
+    <Compile Include="DbServices\ProductPriceDbService.cs" />
+    <Compile Include="DbServices\ProductDbService.cs" />
     <Compile Include="Sqlite\SqliteDbService.cs" />
     <Compile Include="Models\Market.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\ProductPrice.cs" />
     <Compile Include="Models\ProductType.cs" />
     <Compile Include="ProductNormalization.cs" />
-    <Compile Include="ProductTypeDbService.cs" />
+    <Compile Include="DbServices\ProductTypeDbService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
