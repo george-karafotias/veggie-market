@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.34031.81
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeggieMarketDataReader", "VeggieMarketDataReader\VeggieMarketDataReader.csproj", "{DBBCDDE1-DF63-45E6-A1B8-E97AD654F198}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeggieMarketDataStore", "VeggieMarketDataStore\VeggieMarketDataStore.csproj", "{A2FAC4A8-8A42-4FEE-8A40-31F7BF7578CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeggieMarketLogger", "VeggieMarketLogger\VeggieMarketLogger.csproj", "{5A0FB624-15B1-44A3-B62C-5AC1885C5113}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeggieMarketApi", "VeggieMarketApi\VeggieMarketApi.csproj", "{14A04F7D-F437-4A55-972F-7972854808A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeggieMarketScraper", "VeggieMarketScraper\VeggieMarketScraper.csproj", "{CA572C9D-9B58-4B20-BED4-8BB9F28A3D9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeggieMarketConsole", "VeggieMarketConsole\VeggieMarketConsole.csproj", "{3F50CB2C-6430-4762-946D-567EC7E03107}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeggieMarketDataProcessor", "VeggieMarketDataProcessor\VeggieMarketDataProcessor.csproj", "{B8144FA8-1457-4936-A170-A946991C636E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DBBCDDE1-DF63-45E6-A1B8-E97AD654F198}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBBCDDE1-DF63-45E6-A1B8-E97AD654F198}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBBCDDE1-DF63-45E6-A1B8-E97AD654F198}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBBCDDE1-DF63-45E6-A1B8-E97AD654F198}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2FAC4A8-8A42-4FEE-8A40-31F7BF7578CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2FAC4A8-8A42-4FEE-8A40-31F7BF7578CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2FAC4A8-8A42-4FEE-8A40-31F7BF7578CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2FAC4A8-8A42-4FEE-8A40-31F7BF7578CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A0FB624-15B1-44A3-B62C-5AC1885C5113}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A0FB624-15B1-44A3-B62C-5AC1885C5113}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A0FB624-15B1-44A3-B62C-5AC1885C5113}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A0FB624-15B1-44A3-B62C-5AC1885C5113}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14A04F7D-F437-4A55-972F-7972854808A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14A04F7D-F437-4A55-972F-7972854808A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14A04F7D-F437-4A55-972F-7972854808A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14A04F7D-F437-4A55-972F-7972854808A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA572C9D-9B58-4B20-BED4-8BB9F28A3D9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA572C9D-9B58-4B20-BED4-8BB9F28A3D9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA572C9D-9B58-4B20-BED4-8BB9F28A3D9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA572C9D-9B58-4B20-BED4-8BB9F28A3D9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F50CB2C-6430-4762-946D-567EC7E03107}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F50CB2C-6430-4762-946D-567EC7E03107}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F50CB2C-6430-4762-946D-567EC7E03107}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F50CB2C-6430-4762-946D-567EC7E03107}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8144FA8-1457-4936-A170-A946991C636E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8144FA8-1457-4936-A170-A946991C636E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8144FA8-1457-4936-A170-A946991C636E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8144FA8-1457-4936-A170-A946991C636E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C7378B0D-0791-4CBF-A092-BD566852F99E}
+	EndGlobalSection
+EndGlobal
