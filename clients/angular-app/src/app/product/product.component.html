@@ -1,0 +1,88 @@
+<div *ngIf="product">
+    <h2>{{product.ProductName}}</h2>
+
+    <div class="block-div">
+        <p-calendar [(ngModel)]="fromDate" placeholder="From Date" dateFormat="dd/mm/yy"></p-calendar>
+        <p-calendar [(ngModel)]="toDate" placeholder="To Date" dateFormat="dd/mm/yy"></p-calendar>
+        <p-button label="Get Prices" (click)="getPrices()"></p-button>
+    </div>
+</div>
+
+<!-- <div class="card">
+    <p-chart type="line" [data]="data" class="h-[30rem]" style="height:200px" />
+</div> -->
+
+<!-- <p-tabView [activeIndex]="index">-->
+
+<p-tabView *ngIf="prices && prices.length > 0">
+    <p-tabPanel header="Prices">
+        <p-table [value]="prices" [tableStyle]="{ 'min-width': '50rem' }" [paginator]="true" [rows]="30"
+            [rowsPerPageOptions]="[30, 60, 90]">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="ProductDate">Date<p-sortIcon field="ProductDate" /></th>
+                    <th pSortableColumn="Market.MarketName">Market<p-sortIcon field="Market.MarketName" /></th>
+                    <th pSortableColumn="Category1MinPrice">Category1 Min Price<p-sortIcon field="Category1MinPrice" />
+                    </th>
+                    <th pSortableColumn="Category1MaxPrice">Category1 Max Price<p-sortIcon field="Category1MaxPrice" />
+                    </th>
+                    <th pSortableColumn="Category2MinPrice">Category2 Min Price<p-sortIcon field="Category2MinPrice" />
+                    </th>
+                    <th pSortableColumn="Category2MaxPrice">Category2 Max Price<p-sortIcon field="Category2MaxPrice" />
+                    </th>
+                    <th pSortableColumn="ExtraCategory">Extra Category<p-sortIcon field="ExtraCategory" /></th>
+                    <th pSortableColumn="QuantityToSupply">Quantity to Supply<p-sortIcon field="QuantityToSupply" />
+                    </th>
+                    <th pSortableColumn="DominantPrice">Dominant Price<p-sortIcon field="DominantPrice" /></th>
+                    <th pSortableColumn="PreviousWeekDominantPrice">Previous Week Dominant Price<p-sortIcon
+                            field="PreviousWeekDominantPrice" /></th>
+                    <th pSortableColumn="PreviousYearDominantPrice">Previous Year Dominant Price<p-sortIcon
+                            field="PreviousYearDominantPrice" /></th>
+                    <th pSortableColumn="PreviousWeekPriceDifference">Previous Week Price Difference<p-sortIcon
+                            field="PreviousWeekPriceDifference" /></th>
+                    <th pSortableColumn="PreviousYearPriceDifference">Previous Year Price Difference<p-sortIcon
+                            field="PreviousYearPriceDifference" /></th>
+                    <th pSortableColumn="SoldQuantityPercentage">Sold Quantity Percentage<p-sortIcon
+                            field="SoldQuantityPercentage" /></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-price>
+                <tr>
+                    <td>{{ price.FormattedProductDate }}</td>
+                    <td>{{ price.Market.MarketName }}</td>
+                    <td>{{ price.Category1MinPrice }}</td>
+                    <td>{{ price.Category1MaxPrice }}</td>
+                    <td>{{ price.Category2MinPrice }}</td>
+                    <td>{{ price.Category2MaxPrice }}</td>
+                    <td>{{ price.ExtraCategory }}</td>
+                    <td>{{ price.QuantityToSupply }}</td>
+                    <td>{{ price.DominantPrice }}</td>
+                    <td>{{ price.PreviousWeekDominantPrice }}</td>
+                    <td>{{ price.PreviousYearDominantPrice }}</td>
+                    <td>{{ price.PreviousWeekPriceDifference }}</td>
+                    <td>{{ price.PreviousYearPriceDifference }}</td>
+                    <td>{{ price.SoldQuantityPercentage}} </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-tabPanel>
+
+    <p-tabPanel header="Graphs">
+        <p-multiSelect [options]="availablePriceGraphs" [(ngModel)]="selectedPriceGraphs" optionLabel="name"
+            placeholder="Select the price graphs" (onChange)="graphSelectionChanged($event)"></p-multiSelect>
+
+
+        <p-chart *ngIf="selectedPriceGraphs.length > 0" type="line" height="600" [data]="graphData"
+            [options]="graphOptions" />
+
+        <!-- <p-splitter [panelSizes]="[25,75]">
+            <ng-template pTemplate>
+
+            </ng-template>
+
+            <ng-template pTemplate>
+
+            </ng-template>
+        </p-splitter> -->
+    </p-tabPanel>
+</p-tabView>

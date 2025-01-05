@@ -1,0 +1,25 @@
+<p-table #prd [value]="products" stripedRows [tableStyle]="{ 'min-width': '50rem' }" [paginator]="true" [rows]="10"
+    [rowsPerPageOptions]="[10, 20, 50]">
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="ProductName">Product<p-sortIcon field="code" /></th>
+            <th pSortableColumn="ProductType.ProductTypeName">Category<p-sortIcon field="code" /></th>
+        </tr>
+        <tr>
+            <th>
+                <p-columnFilter type="text" field="ProductName" placeholder="Search by name"
+                    ariaLabel="Filter Name"></p-columnFilter>
+            </th>
+            <th>
+                <p-columnFilter type="text" field="ProductType.ProductTypeName" placeholder="Search by category"
+                    ariaLabel="Filter Category"></p-columnFilter>
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+        <tr>
+            <td><a [routerLink]="['./' + product.ProductId]">{{ product.ProductName }}</a></td>
+            <td>{{ product.ProductType.ProductTypeName }}</td>
+        </tr>
+    </ng-template>
+</p-table>
