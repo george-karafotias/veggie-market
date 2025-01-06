@@ -4,7 +4,7 @@ using System.Data.Common;
 using VeggieMarketDataStore.DbInterfaces;
 using VeggieMarketDataStore.Models;
 
-namespace VeggieMarketDataStore
+namespace VeggieMarketDataStore.DbServices
 {
     public class ProductPriceDbService : IProductPriceDbService
     {

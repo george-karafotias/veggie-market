@@ -1,26 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
+﻿using System.Collections.Generic;
 using System.Web.Http;
-using VeggieMarketDataStore;
+using VeggieMarketDataStore.DbServices;
 using VeggieMarketDataStore.Models;
 
 namespace VeggieMarketApi.Controllers
 {
     public class ProductTypesController : ApiController
     {
-        private readonly DataStorageService dataStorageService;
+        private readonly ProductTypeDbService productTypeDbService;
 
         public ProductTypesController()
         {
-            dataStorageService = DataStorageService.GetInstance(new SqliteDbService());
+            productTypeDbService = DbServiceProvider.GetDataStorageService().ProductTypeDbService;
         }
 
         public IEnumerable<ProductType> GetAllProductTypes()
         {
-            return dataStorageService.ProductTypeDbService.GetProductTypes();
+            return productTypeDbService.GetProductTypes();
         }
     }
 }

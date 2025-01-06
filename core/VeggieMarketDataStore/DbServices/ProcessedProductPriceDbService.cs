@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using VeggieMarketDataStore.DbInterfaces;
 using VeggieMarketDataStore.Models;
 
-namespace VeggieMarketDataStore.Sqlite
+namespace VeggieMarketDataStore.DbServices
 {
     public class ProcessedProductPriceDbService : IProcessedProductPriceDbService
     {

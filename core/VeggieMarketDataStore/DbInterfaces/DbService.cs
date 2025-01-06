@@ -13,6 +13,12 @@ namespace VeggieMarketDataStore.DbInterfaces
         public abstract DbConnection OpenConnection();
         public abstract DbCommand CreateCommand(string query, DbConnection connection);
 
+        public static string MARKETS_TABLE = "Markets";
+        public static string PRODUCTS_TABLE = "Products";
+        public static string PRODUCT_TYPES_TABLE = "ProductTypes";
+        public static string PRODUCT_PRICES_TABLE = "ProductPrices";
+        public static string PROCESSED_PRODUCT_PRICES_TABLE = "ProcessedProductPrices";
+
         protected Logger logger;
 
         public DbService() 

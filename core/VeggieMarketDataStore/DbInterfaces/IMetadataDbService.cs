@@ -4,6 +4,8 @@ namespace VeggieMarketDataStore.DbInterfaces
 {
     public interface IMetadataDbService
     {
-        DatePeriod[] GetAvailableDatePeriods();
+        MarketAvailableData[] GetAvailablePrices();
+
+        DatePeriod[] GetMarketAvailablePrices(Market market);
     }
 }

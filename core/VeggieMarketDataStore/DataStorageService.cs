@@ -1,5 +1,5 @@
 ﻿using VeggieMarketDataStore.DbInterfaces;
-using VeggieMarketDataStore.Sqlite;
+using VeggieMarketDataStore.DbServices;
 
 namespace VeggieMarketDataStore
 {
@@ -12,7 +12,8 @@ namespace VeggieMarketDataStore
         private readonly ProductDbService productDbService;
         private readonly ProductPriceDbService productPriceDbService;
         private readonly ProcessedProductPriceDbService processedProductPriceDbService;
-       
+        private readonly MetadataDbService metadataDbService;
+
         private DataStorageService(DbService dbService)
         {
             this.dbService = dbService;
@@ -21,6 +22,7 @@ namespace VeggieMarketDataStore
             productDbService = new ProductDbService(this.dbService);
             productPriceDbService = new ProductPriceDbService(this.dbService);
             processedProductPriceDbService = new ProcessedProductPriceDbService(this.dbService);
+            metadataDbService = new MetadataDbService(this.dbService, marketDbService);
         }
 
         public static DataStorageService GetInstance(DbService dbService)
@@ -42,6 +44,8 @@ namespace VeggieMarketDataStore
         public ProductPriceDbService ProductPriceDbService {  get { return productPriceDbService; } }
 
         public ProcessedProductPriceDbService ProcessedProductPriceDbService { get{ return processedProductPriceDbService; } }
+
+        public MetadataDbService MetadataDbService { get { return metadataDbService; } }
 
         private void CreateDatabase()
         {

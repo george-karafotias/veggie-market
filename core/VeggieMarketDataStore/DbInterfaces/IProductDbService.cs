@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using VeggieMarketDataStore.Models;
 
-namespace VeggieMarketDataStore
+namespace VeggieMarketDataStore.DbInterfaces
 {
     public interface IProductDbService
     {

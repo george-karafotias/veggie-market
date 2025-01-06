@@ -1,20 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Web.Http;
-using VeggieMarketDataStore;
+using VeggieMarketDataStore.DbServices;
 using VeggieMarketDataStore.Models;
 
 namespace VeggieMarketApi.Controllers
 {
     public class ProductsController : ApiController
     {
-        private readonly DataStorageService dataStorageService;
         private readonly ProductDbService productDbService;
-        private const string ROUTE_URL = "products/"; 
+        private const string ROUTE_URL = "products/";
 
         public ProductsController()
         {
-            dataStorageService = DataStorageService.GetInstance(new SqliteDbService());
-            productDbService = dataStorageService.ProductDbService;
+            productDbService = DbServiceProvider.GetDataStorageService().ProductDbService;
         }
 
         [HttpGet]

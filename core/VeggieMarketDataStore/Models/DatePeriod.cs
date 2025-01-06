@@ -13,7 +13,18 @@ namespace VeggieMarketDataStore.Models
             this.endDate = endDate;
         }
 
-        public DateTime StartDate { get { return startDate; } }
-        public DateTime EndDate { get { return endDate; } }
+        public DatePeriod(DateTime date)
+        {
+            this.startDate = date;
+            this.endDate = date;
+        }
+
+        public string StartDate { get { return FormatDate(startDate); } }
+        public string EndDate { get { return FormatDate(endDate); } }
+    
+        private string FormatDate(DateTime date)
+        {
+            return date.ToString("dd/MM/yyyy");
+        }
     }
 }

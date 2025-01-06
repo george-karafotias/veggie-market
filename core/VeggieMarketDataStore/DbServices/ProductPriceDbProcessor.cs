@@ -103,7 +103,7 @@ namespace VeggieMarketDataStore
         {
             Product product = dbService.CreateProduct(reader);
             Market market = dbService.CreateMarket(reader);
-            long productDate = Convert.ToInt64(reader.GetValue(reader.GetOrdinal("Date")));
+            long productDate = Convert.ToInt64(reader.GetValue(reader.GetOrdinal(PRODUCT_PRICE_DATE_COLUMN_NAME)));
             ProductPrice productPrice = new ProductPrice(product, productDate, market);
 
             productPrice.ExtraCategory = dbService.ConvertDbValueToNullableDouble(reader.GetValue(reader.GetOrdinal("ExtraCategory")));
@@ -126,19 +126,6 @@ namespace VeggieMarketDataStore
         {
             IEnumerable<ProductPrice> productPrices = GetProductPricesInternal(productPricesTable, PRODUCT_PRICE_DATE_COLUMN_NAME + " = " + productPrice.ProductDate + " AND Market = " + productPrice.Market.MarketId);
             return productPrices.ToList().Count > 0;
-        }
-
-        private long? DateToNumber(string dateString)
-        {
-            long? retVal = null;
-            if (!string.IsNullOrEmpty(dateString))
-            {
-                if (DateTime.TryParse(dateString, out DateTime date))
-                {
-                    retVal = date.Ticks;
-                }
-            }
-            return retVal;
         }
 
         private string GetProductDateFilter(DateTime? fromDate, DateTime? toDate)

@@ -69,11 +69,13 @@
     <Compile Include="DbInterfaces\IProductPriceDbService.cs" />
     <Compile Include="DbInterfaces\IProductTypeDbService.cs" />
     <Compile Include="DbServices\MarketDbService.cs" />
-    <Compile Include="Models\DatePeriod.cs" />
+    <Compile Include="DbServices\MetadataDbService.cs" />
     <Compile Include="DbServices\ProcessedProductPriceDbService.cs" />
     <Compile Include="DbServices\ProductPriceDbProcessor.cs" />
     <Compile Include="DbServices\ProductPriceDbService.cs" />
     <Compile Include="DbServices\ProductDbService.cs" />
+    <Compile Include="Models\DatePeriod.cs" />
+    <Compile Include="Models\MarketAvailableData.cs" />
     <Compile Include="Sqlite\SqliteDbService.cs" />
     <Compile Include="Models\Market.cs" />
     <Compile Include="Models\Product.cs" />
