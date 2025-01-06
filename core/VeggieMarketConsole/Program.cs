@@ -62,20 +62,46 @@ namespace VeggieMarketConsole
             //string[] renthPrices = Directory.GetFiles(@"C:\Stuff\Projects\veggie\wetransfer_data-files-for-athens-and-thessaloniki_2024-12-04_1526\Athens data sent for proccesing to George (2016-2022)\Λαχαναγορά_Αθήνα_2022", "*.xls", SearchOption.AllDirectories);
             //renthVeggieMarketDataReader.ReadMultipleDays(renthPrices);
 
-            IEnumerable<ProductPrice> productPrices = dataStorageService.ProductPriceDbService.GetProductMarketPrices(29, 1, 2022);
-            DataProcessor dataProcessor = new DataProcessor();
-            IEnumerable<ProductPrice> processedProductPrices = dataProcessor.ProcessProductPrices(productPrices, 2022);
+            //IEnumerable<ProductPrice> productPrices = dataStorageService.ProductPriceDbService.GetProductMarketPrices(29, 1, 2022);
+            //DataProcessor dataProcessor = new DataProcessor();
+            //IEnumerable<ProductPrice> processedProductPrices = dataProcessor.ProcessProductPrices(productPrices, 2022);
 
-            foreach (ProductPrice processedProductPrice in processedProductPrices)
-            {
-                dataStorageService.ProcessedProductPriceDbService.InsertProcessedPrice(processedProductPrice);
-            }
+            //foreach (ProductPrice processedProductPrice in processedProductPrices)
+            //{
+            //    dataStorageService.ProcessedProductPriceDbService.InsertProcessedPrice(processedProductPrice);
+            //}
 
             //double?[] test = new double?[7];
             //test[0] = 0.25;
             //test[5] = 1.7;
             //test[6] = 1.8;
             //Interpolation.LinSpaceArray(ref test);
+
+            ProcessAllData();
+        }
+
+        private static void ProcessAllData()
+        {
+            DataStorageService dataStorageService = DataStorageService.GetInstance(new SqliteDbService());
+            IEnumerable<Product> products = dataStorageService.ProductDbService.GetProducts();
+            IEnumerable<Market> markets = dataStorageService.MarketDbService.GetMarkets();
+            int year = 2022;
+            DataProcessor dataProcessor = new DataProcessor();
+            foreach (Market market in markets)
+            {
+                foreach (Product product in products)
+                {
+                    IEnumerable<ProductPrice> productPrices = dataStorageService.ProductPriceDbService.GetProductMarketPrices(product.ProductId, market.MarketId, year);
+                    if (productPrices != null && productPrices.Count() > 0)
+                    {
+                        IEnumerable<ProductPrice> processedProductPrices = dataProcessor.ProcessProductPrices(productPrices, year);
+                        foreach (ProductPrice processedProductPrice in processedProductPrices)
+                        {
+                            dataStorageService.ProcessedProductPriceDbService.InsertProcessedPrice(processedProductPrice);
+                        }
+                    }
+                }
+            }
         }
     }
 }

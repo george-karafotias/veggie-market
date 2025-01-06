@@ -124,7 +124,7 @@ namespace VeggieMarketDataStore
 
         private bool ProductPriceExists(ProductPrice productPrice, string productPricesTable)
         {
-            IEnumerable<ProductPrice> productPrices = GetProductPricesInternal(productPricesTable, PRODUCT_PRICE_DATE_COLUMN_NAME + " = " + productPrice.ProductDate + " AND Market = " + productPrice.Market.MarketId);
+            IEnumerable<ProductPrice> productPrices = GetProductPricesInternal(productPricesTable, PRODUCT_PRICE_DATE_COLUMN_NAME + " = " + productPrice.ProductDate + " AND Market = " + productPrice.Market.MarketId + " AND Product = " + productPrice.Product.ProductId);
             return productPrices.ToList().Count > 0;
         }
 
