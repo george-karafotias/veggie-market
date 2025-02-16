@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VeggieMarketLogger
 {
-    public class Logger
+    public class Logger : ILogger
     {
         private static Logger loggerInstance;
 
@@ -27,14 +23,6 @@ namespace VeggieMarketLogger
         public void Log(string className, string methodName, string message, LogType logType)
         {
             Console.WriteLine("Class: " + className + ", MethodName: " + methodName + ", Message: " + message + ", Type: " + logType.ToString());
-        }
-
-        public enum LogType
-        {
-            Info,
-            Warning,
-            Error,
-            Exception
         }
     }
 }

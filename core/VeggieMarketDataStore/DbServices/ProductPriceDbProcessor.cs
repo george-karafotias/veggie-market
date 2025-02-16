@@ -13,12 +13,12 @@ namespace VeggieMarketDataStore
     {
         private const string PRODUCT_PRICE_DATE_COLUMN_NAME = "Date";
         private readonly DbService dbService;
-        private readonly Logger logger;
+        private readonly ILogger logger;
 
         public ProductPriceDbProcessor(DbService dbService)
         {
             this.dbService = dbService;
-            logger = Logger.GetInstance();
+            logger = dbService.Logger;
         }
 
         public IEnumerable<ProductPrice> GetPrices(string pricesTable, DateTime? fromDate, DateTime? toDate)
@@ -32,9 +32,9 @@ namespace VeggieMarketDataStore
             return GetProductPricesInternal(pricesTable, filter);
         }
 
-        public IEnumerable<ProductPrice> GetProductMarketPrices(string productPricesTable, int productId, int marketId, int year)
+        public IEnumerable<ProductPrice> GetProductMarketPrices(string productPricesTable, int productId, int marketId, DateTime? fromDate, DateTime? toDate)
         {
-            string filter = CreateProductPricesFilter(productId, GetYearStartDate(year), GetYearEndDate(year), marketId);
+            string filter = CreateProductPricesFilter(productId, fromDate, toDate, marketId);
             return GetProductPricesInternal(productPricesTable, filter);
         }
 
@@ -42,7 +42,7 @@ namespace VeggieMarketDataStore
         {
             if (ProductPriceExists(productPrice, pricesTable))
             {
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "productPrice for product " + productPrice.Product.ProductId + " already exists for date " + productPrice.ProductDate + " in market " + productPrice.Market.MarketId, Logger.LogType.Warning);
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "productPrice for product " + productPrice.Product.ProductId + " already exists for date " + productPrice.ProductDate + " in market " + productPrice.Market.MarketId, LogType.Warning);
                 return false;
             }
 

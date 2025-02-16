@@ -12,7 +12,7 @@ namespace VeggieMarketDataStore.DbInterfaces
 
         IEnumerable<ProductPrice> GetProductPrices(int productId, DateTime? fromDate, DateTime? toDate);
 
-        IEnumerable<ProductPrice> GetProductMarketPrices(int productId, int marketId, int year);
+        IEnumerable<ProductPrice> GetProductMarketPrices(int productId, int marketId, DateTime? fromDate, DateTime? toDate);
 
         bool ProductHasPrice(int productId, long date);
     }

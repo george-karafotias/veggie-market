@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.34031.81
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeggieMarketDataReader", "VeggieMarketDataReader\VeggieMarketDataReader.csproj", "{DBBCDDE1-DF63-45E6-A1B8-E97AD654F198}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeggieMarketConsole", "VeggieMarketConsole\VeggieMarketConsole.csproj", "{3F50CB2C-6430-4762-946D-567EC7E03107}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeggieMarketDataProcessor", "VeggieMarketDataProcessor\VeggieMarketDataProcessor.csproj", "{B8144FA8-1457-4936-A170-A946991C636E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeggieMarketUi", "VeggieMarketUi\VeggieMarketUi.csproj", "{0018B62F-63D1-4DEC-902A-17EE1956044B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{B8144FA8-1457-4936-A170-A946991C636E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8144FA8-1457-4936-A170-A946991C636E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8144FA8-1457-4936-A170-A946991C636E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0018B62F-63D1-4DEC-902A-17EE1956044B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0018B62F-63D1-4DEC-902A-17EE1956044B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0018B62F-63D1-4DEC-902A-17EE1956044B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0018B62F-63D1-4DEC-902A-17EE1956044B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

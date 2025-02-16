@@ -1,0 +1,55 @@
+﻿<Window x:Class="VeggieMarketUi.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VeggieMarketUi"
+        mc:Ignorable="d"
+        Title="Veggie Prices" Height="768" Width="1024" WindowState="Maximized">
+    <Window.Resources>
+        <ResourceDictionary>
+            <!-- Believe it or not the next line fixes a bug MS acknowledges -->
+            <Style TargetType="{x:Type Rectangle}" />
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Assets/DefaultStyleDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+    </Window.Resources>
+    
+    <TabControl Background="CornflowerBlue" SelectionChanged="TabControl_SelectionChanged">
+        <TabItem Header="Import Data">
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <Label>Select Market: </Label>
+                    <ComboBox x:Name="MarketsComboBox">
+                        
+                    </ComboBox>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="OpenFileTextBox" Width="800" IsReadOnly="True" Text="Click the Open File button to open a data file..."></TextBox>
+                    <Button Click="OpenFileButton_Click" Style="{StaticResource OpenFileButton}">Open File</Button>
+                    <Button Click="ImportFileButton_Click" Style="{StaticResource ImportFileButton}">Import File</Button>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="OpenFolderTextBox" Width="800" IsReadOnly="True" Text="Click the Open Folder button to open a data folder..."></TextBox>
+                    <Button Click="OpenFolderButton_Click" Style="{StaticResource OpenFileButton}">Open Folder</Button>
+                    <Button Click="ImportFolderButton_Click" Style="{StaticResource ImportFileButton}">Import Folder</Button>
+                </StackPanel>
+
+                <TextBox TextWrapping="Wrap" Height="600" IsReadOnly="True" VerticalScrollBarVisibility="Auto"  AcceptsReturn="True" Name="LogTextBox"/>
+            </StackPanel>
+        </TabItem>
+
+        <TabItem Header="Available Data">
+            <DataGrid x:Name="AvailablePricesDataGrid" AutoGenerateColumns="False" IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Market" Binding="{Binding MarketName}"/>
+                    <DataGridTextColumn Header="Start Date" Binding="{Binding StartDate}"/>
+                    <DataGridTextColumn Header="End Date" Binding="{Binding EndDate}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </TabItem>
+    </TabControl>
+</Window>

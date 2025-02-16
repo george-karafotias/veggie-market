@@ -12,6 +12,6 @@ namespace VeggieMarketDataStore.DbInterfaces
 
         IEnumerable<ProductPrice> GetProcessedProductPrices(int productId, DateTime? fromDate, DateTime? toDate);
 
-        IEnumerable<ProductPrice> GetProcessedProductMarketPrices(int productId, int marketId, int year);
+        IEnumerable<ProductPrice> GetProcessedProductMarketPrices(int productId, int marketId, DateTime? fromDate, DateTime? toDate);
     }
 }

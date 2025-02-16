@@ -1,22 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using VeggieMarketDataStore;
 using VeggieMarketDataStore.Models;
 
 namespace VeggieMarketDataProcessor
 {
     public class DataProcessor
     {
-        public IEnumerable<ProductPrice> ProcessProductPrices(IEnumerable<ProductPrice> productPrices, int year)
+        private DataStorageService dataStorageService;
+
+        public DataProcessor(DataStorageService dataStorageService) 
         {
-            DateTime begin = new DateTime(year, 1, 1);
-            DateTime end = new DateTime(year, 12, 31);
-            return ProcessAllProductPricesForPeriod(productPrices, begin, end);
+            this.dataStorageService = dataStorageService;
         }
 
-        public IEnumerable<ProductPrice> ProcessAllProductPricesForPeriod(IEnumerable<ProductPrice> productPrices, DateTime begin, DateTime end)
+        public void ProcessProductPrices(string marketName, DateTime[] days)
+        {
+            Market market = dataStorageService.MarketDbService.GetMarket(marketName);
+            IEnumerable<Product> products = dataStorageService.ProductDbService.GetProducts();
+            if (market == null || products == null) return;
+
+            Dictionary<int, List<DateTime>> daysByYear = SplitDaysByYear(days);
+            if (daysByYear.Count() == 0) return;
+
+            foreach (KeyValuePair<int, List<DateTime>> daysByYearPair in daysByYear)
+            {
+                int year = daysByYearPair.Key;
+                DateTime fromDate = new DateTime(year, 1, 1);
+                DateTime toDate = new DateTime(year, 12, 31);
+
+                foreach (Product product in products)
+                {
+                    //are there any prices to process? if no, go to the next product
+                    IEnumerable<ProductPrice> productPrices = dataStorageService.ProductPriceDbService.GetProductMarketPrices(product.ProductId, market.MarketId, fromDate, toDate);
+                    if (productPrices == null || productPrices.Count() == 0) continue;
+
+                    //maybe the prices have already been processed before? if yes, go to the next product
+                    IEnumerable<ProductPrice> existingProcessedProductPrices = dataStorageService.ProcessedProductPriceDbService.GetProcessedProductMarketPrices(product.ProductId, market.MarketId, fromDate, toDate);
+                    if (existingProcessedProductPrices != null && existingProcessedProductPrices.Count() > 0) continue;
+
+                    IEnumerable<ProductPrice> processedProductPrices = ProcessProductPrices(productPrices, fromDate, toDate);
+                    if (processedProductPrices == null || processedProductPrices.Count() == 0) continue;
+
+                    foreach (ProductPrice productPrice in processedProductPrices)
+                    {
+                        dataStorageService.ProcessedProductPriceDbService.InsertProcessedPrice(productPrice);
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<ProductPrice> ProcessProductPrices(IEnumerable<ProductPrice> productPrices, DateTime begin, DateTime end)
         {
             List<ProductPrice> processedProductPrices = new List<ProductPrice>();
             Product product = productPrices.First().Product;
@@ -106,6 +141,28 @@ namespace VeggieMarketDataProcessor
                 }
             }
             return null;
+        }
+
+        private Dictionary<int, List<DateTime>> SplitDaysByYear(DateTime[] days)
+        {
+            Dictionary<int, List<DateTime>> daysByYear = new Dictionary<int, List<DateTime>>();
+
+            foreach (DateTime day in days)
+            {
+                int year = day.Year;
+                if (daysByYear.ContainsKey(year))
+                {
+                    daysByYear[year].Add(day);
+                }
+                else
+                {
+                    List<DateTime> daysList = new List<DateTime>();
+                    daysList.Add(day);
+                    daysByYear.Add(year, daysList);
+                }
+            }
+
+            return daysByYear;
         }
     }
 }

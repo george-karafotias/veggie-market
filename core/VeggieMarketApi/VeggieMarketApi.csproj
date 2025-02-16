@@ -129,6 +129,10 @@
       <Project>{a2fac4a8-8a42-4fee-8a40-31f7bf7578ce}</Project>
       <Name>VeggieMarketDataStore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VeggieMarketLogger\VeggieMarketLogger.csproj">
+      <Project>{5A0FB624-15B1-44A3-B62C-5AC1885C5113}</Project>
+      <Name>VeggieMarketLogger</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

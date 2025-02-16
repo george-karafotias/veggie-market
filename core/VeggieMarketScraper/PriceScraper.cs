@@ -15,12 +15,12 @@ namespace VeggieMarketScraper
         private int chunkSize;
         private int chunkAdditionalDelayInMs;
         private string url;
-        private Logger logger;
+        private ILogger logger;
 
-        public PriceScraper(string url)
+        public PriceScraper(string url, ILogger logger)
         {
             this.url = url;
-            logger = Logger.GetInstance();
+            this.logger = logger;
             requestDelayInMs = 1000;
             chunkSize = 30;
             chunkAdditionalDelayInMs = 60000;
@@ -87,7 +87,7 @@ namespace VeggieMarketScraper
             }
             catch (Exception ex)
             {
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, ex.StackTrace, Logger.LogType.Exception);
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, ex.StackTrace, LogType.Exception);
                 return null;
             }
         }

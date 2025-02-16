@@ -1,6 +1,7 @@
 ﻿using System.Data.Common;
 using System.Data.SQLite;
 using VeggieMarketDataStore.DbInterfaces;
+using VeggieMarketLogger;
 
 namespace VeggieMarketDataStore
 {
@@ -8,10 +9,18 @@ namespace VeggieMarketDataStore
     {
         private const string CONNECTION_STRING = @"Data Source=C:\Stuff\Projects\veggie\db\veggie.sqlite";
 
+        public SqliteDbService(ILogger logger) : base(logger)
+        {
+            
+        }
+
         public override DbConnection OpenConnection()
         {
-            SQLiteConnection connection = new SQLiteConnection(CONNECTION_STRING);
-            connection.Open();
+            if (connection == null)
+            {
+                connection = new SQLiteConnection(CONNECTION_STRING);
+                connection.Open();
+            }
             return connection;
         }
 

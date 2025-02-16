@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Reflection;
 using VeggieMarketDataStore.Models;
 using VeggieMarketLogger;
@@ -8,54 +8,45 @@ namespace VeggieMarketDataReader
 {
     public abstract class MarketDataReader
     {
-        public abstract bool ReadSingleDay(string file);
+        public abstract DateTime? ReadSingleDay(string file);
 
         protected VeggieMarketDataStore.DataStorageService dataStorageService;
-        protected Logger logger;
+        protected ILogger logger;
         protected Market market;
 
         public MarketDataReader(VeggieMarketDataStore.DataStorageService dataStorageService)
         {
             this.dataStorageService = dataStorageService;
-            logger = Logger.GetInstance();
+            logger = this.dataStorageService.Logger;
         }
 
-        public bool ReadDirectory(string directoryPath)
+        public DateTime[] ReadMultipleDays(string[] files)
         {
             try
             {
-                string[] files = Directory.GetFiles(directoryPath, "*.xls", SearchOption.AllDirectories);
-                return ReadMultipleDays(files);
-            }
-            catch (Exception ex)
-            {
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, ex.StackTrace, Logger.LogType.Exception);
-                return false;
-            }
-        }
+                if (files == null) return null;
 
-        public bool ReadMultipleDays(string[] files)
-        {
-            try
-            {
-                if (files == null) return false;
-
+                List<DateTime> days = new List<DateTime>();
                 foreach (string file in files)
                 {
-                    logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Processing " + file + "...", Logger.LogType.Info);
-                    bool readDay = ReadSingleDay(file);
-                    if (!readDay)
+                    logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Processing " + file + "...", LogType.Info);
+                    DateTime? day = ReadSingleDay(file);
+                    if (day.HasValue)
                     {
-                        logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Failed to process " + file + "...", Logger.LogType.Warning);
+                        days.Add(day.Value);
+                    }
+                    else
+                    {
+                        logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Failed to process " + file + "...", LogType.Warning);
                     }
                 }
 
-                return true;
+                return days.ToArray();
             }
             catch (Exception ex)
             {
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, ex.StackTrace, Logger.LogType.Exception);
-                return false;
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, ex.StackTrace, LogType.Exception);
+                return null;
             }
         }
 

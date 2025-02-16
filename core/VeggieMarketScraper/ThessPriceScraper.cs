@@ -1,4 +1,5 @@
 ﻿using System;
+using VeggieMarketLogger;
 
 namespace VeggieMarketScraper
 {
@@ -6,7 +7,7 @@ namespace VeggieMarketScraper
     {
         private const string BASE_URL = "https://www.kath.gr/uploadimages/";
 
-        public ThessPriceScraper() : base(BASE_URL) 
+        public ThessPriceScraper(ILogger logger) : base(BASE_URL, logger) 
         { 
         }
 

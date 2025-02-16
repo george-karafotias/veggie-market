@@ -32,9 +32,9 @@ namespace VeggieMarketDataStore.DbServices
             return productPriceDbProcessor.GetProductPrices(PRODUCT_PRICES_TABLE, productId, fromDate, toDate);
         }
 
-        public IEnumerable<ProductPrice> GetProcessedProductMarketPrices(int productId, int marketId, int year)
+        public IEnumerable<ProductPrice> GetProcessedProductMarketPrices(int productId, int marketId, DateTime? fromDate, DateTime? toDate)
         {
-            return productPriceDbProcessor.GetProductMarketPrices(PRODUCT_PRICES_TABLE, productId, marketId, year);
+            return productPriceDbProcessor.GetProductMarketPrices(PRODUCT_PRICES_TABLE, productId, marketId, fromDate, toDate);
         }
     }
 }

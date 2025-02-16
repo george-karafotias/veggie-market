@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Text.RegularExpressions;
 using VeggieMarketDataStore.Models;
 
 namespace VeggieMarketDataReader
@@ -34,10 +35,15 @@ namespace VeggieMarketDataReader
         protected override DateTime? ExtractDate(DataRow row)
         {
             string cell = Convert.ToString(row[DATE_COLUMN_INDEX]);
-            string[] lines = cell.Split(new[] { '\r', '\n' });
-            if (lines == null || lines.Length < 5) return null;
-            DateTime.TryParse(lines[4], out DateTime date);
-            return date;
+            string pattern = @"\b\d{1,2}/\d{1,2}/\d{4}\b";
+            Regex regex = new Regex(pattern);
+            MatchCollection matches = regex.Matches(cell);
+            if (matches.Count == 1)
+            {
+                DateTime.TryParse(matches[0].Value, out DateTime date);
+                return date;
+            }
+            return null;
         }
 
         protected override bool IsProductTypeRow(DataRow row)

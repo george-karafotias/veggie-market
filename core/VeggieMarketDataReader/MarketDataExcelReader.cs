@@ -19,15 +19,15 @@ namespace VeggieMarketDataReader
 
         private ProductNormalization productNormalization;
 
-        public MarketDataExcelReader(VeggieMarketDataStore.DataStorageService dataStorageService) : base(dataStorageService)
+        public MarketDataExcelReader(DataStorageService dataStorageService) : base(dataStorageService)
         {
-            this.productNormalization = new ProductNormalization(logger);
+            this.productNormalization = new ProductNormalization(dataStorageService.Logger);
         }
 
-        public override bool ReadSingleDay(string file)
+        public override DateTime? ReadSingleDay(string file)
         {
             DataTable dataTable = ExcelDataReader.ReadFile(file);
-            if (dataTable == null || dataTable.Rows == null) return false;
+            if (dataTable == null || dataTable.Rows == null) return null;
 
             int rowNumber = 1;
             ProductType currentProductType = null;
@@ -40,8 +40,8 @@ namespace VeggieMarketDataReader
                     DateTime? date = ExtractDate(row);
                     if (!date.HasValue)
                     {
-                        logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Cannot extract date", Logger.LogType.Error);
-                        return false;
+                        logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Cannot extract date", LogType.Error);
+                        return null;
                     }
                     currentProductDate = date.Value.Ticks;
                 }
@@ -55,7 +55,7 @@ namespace VeggieMarketDataReader
                     {
                         if (currentProductType == null)
                         {
-                            logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Identified a product row but the current product type is null, so continuing..", Logger.LogType.Warning);
+                            logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Identified a product row but the current product type is null, so continuing..", LogType.Warning);
                         }
                         else
                         {
@@ -67,7 +67,7 @@ namespace VeggieMarketDataReader
                 rowNumber++;
             }
 
-            return true;
+            return new DateTime(currentProductDate.Value);
         }
 
         protected void ParseProduct(DataRow row, ProductType currentProductType, long currentProductDate)
@@ -112,17 +112,17 @@ namespace VeggieMarketDataReader
                         logger.Log(
                             GetType().Name, MethodBase.GetCurrentMethod().Name,
                             "Cannot store product price for product " + product.ProductId + " and date " + currentProductDate.ToString(),
-                            Logger.LogType.Error);
+                            LogType.Error);
                     }
                 }
                 else
                 {
-                    logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Product price is null and cannot be stored", Logger.LogType.Error);
+                    logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Product price is null and cannot be stored", LogType.Error);
                 }
             }
             else
             {
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Product " + product.ProductId + " and date " + currentProductDate.ToString() + " is already stored", Logger.LogType.Warning);
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Product " + product.ProductId + " and date " + currentProductDate.ToString() + " is already stored", LogType.Warning);
             }
         }
     }

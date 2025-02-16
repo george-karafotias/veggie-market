@@ -8,6 +8,7 @@ using VeggieMarketDataProcessor;
 using VeggieMarketDataReader;
 using VeggieMarketDataStore;
 using VeggieMarketDataStore.Models;
+using VeggieMarketLogger;
 using VeggieMarketScraper;
 
 namespace VeggieMarketConsole
@@ -32,8 +33,8 @@ namespace VeggieMarketConsole
             //DateTime startDate = new DateTime(2024, 10, 1);
             //DateTime endDate = new DateTime(2024, 10, 11);
             //thessMarketWebScraper.DownloadPeriod(startDate, endDate);
-
-            VeggieMarketDataStore.DataStorageService dataStorageService = VeggieMarketDataStore.DataStorageService.GetInstance(new SqliteDbService());
+            Logger logger = Logger.GetInstance();
+            DataStorageService dataStorageService = DataStorageService.GetInstance(new SqliteDbService(logger), logger);
             ThessVeggieMarketDataReader thessVeggieMarketDataReader = new ThessVeggieMarketDataReader(dataStorageService);
             RenthVeggieMarketDataReader renthVeggieMarketDataReader = new RenthVeggieMarketDataReader(dataStorageService);
 
@@ -46,9 +47,11 @@ namespace VeggieMarketConsole
             //string renthPath = @"C:\Users\gk250151\Downloads\20241010.xls";
             //string renthPath = @"C:\Users\gk250151\source\repos\VeggieMarket\VeggieMarketConsole\bin\Debug\20241001.xls";
             //renthVeggieMarketDataReader.ReadSingleDay(renthPath);
+            string renthPath = @"C:\Users\ketam\OneDrive\Υπολογιστής\20160114.xlsx";
+            renthVeggieMarketDataReader.ReadSingleDay(renthPath);
 
-            ThessPriceScraper thessPriceScraper = new ThessPriceScraper();
-            RenthPriceScraper renthPriceScraper = new RenthPriceScraper();
+            //ThessPriceScraper thessPriceScraper = new ThessPriceScraper();
+            //RenthPriceScraper renthPriceScraper = new RenthPriceScraper();
 
             //DateTime startDay = new DateTime(2023, 1, 1);
             //DateTime endDay = new DateTime(2023, 12, 31);
@@ -77,31 +80,32 @@ namespace VeggieMarketConsole
             //test[6] = 1.8;
             //Interpolation.LinSpaceArray(ref test);
 
-            ProcessAllData();
+            //ProcessAllData();
         }
 
         private static void ProcessAllData()
         {
-            DataStorageService dataStorageService = DataStorageService.GetInstance(new SqliteDbService());
-            IEnumerable<Product> products = dataStorageService.ProductDbService.GetProducts();
-            IEnumerable<Market> markets = dataStorageService.MarketDbService.GetMarkets();
-            int year = 2022;
-            DataProcessor dataProcessor = new DataProcessor();
-            foreach (Market market in markets)
-            {
-                foreach (Product product in products)
-                {
-                    IEnumerable<ProductPrice> productPrices = dataStorageService.ProductPriceDbService.GetProductMarketPrices(product.ProductId, market.MarketId, year);
-                    if (productPrices != null && productPrices.Count() > 0)
-                    {
-                        IEnumerable<ProductPrice> processedProductPrices = dataProcessor.ProcessProductPrices(productPrices, year);
-                        foreach (ProductPrice processedProductPrice in processedProductPrices)
-                        {
-                            dataStorageService.ProcessedProductPriceDbService.InsertProcessedPrice(processedProductPrice);
-                        }
-                    }
-                }
-            }
+            //Logger logger = Logger.GetInstance();
+            //DataStorageService dataStorageService = DataStorageService.GetInstance(new SqliteDbService(logger), logger);
+            //IEnumerable<Product> products = dataStorageService.ProductDbService.GetProducts();
+            //IEnumerable<Market> markets = dataStorageService.MarketDbService.GetMarkets();
+            //int year = 2022;
+            //DataProcessor dataProcessor = new DataProcessor();
+            //foreach (Market market in markets)
+            //{
+            //    foreach (Product product in products)
+            //    {
+            //        IEnumerable<ProductPrice> productPrices = dataStorageService.ProductPriceDbService.GetProductMarketPrices(product.ProductId, market.MarketId, year);
+            //        if (productPrices != null && productPrices.Count() > 0)
+            //        {
+            //            IEnumerable<ProductPrice> processedProductPrices = dataProcessor.ProcessProductPrices(productPrices, year);
+            //            foreach (ProductPrice processedProductPrice in processedProductPrices)
+            //            {
+            //                dataStorageService.ProcessedProductPriceDbService.InsertProcessedPrice(processedProductPrice);
+            //            }
+            //        }
+            //    }
+            //}
         }
     }
 }

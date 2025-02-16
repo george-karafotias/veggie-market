@@ -19,12 +19,15 @@ namespace VeggieMarketDataStore.DbInterfaces
         public static string PRODUCT_PRICES_TABLE = "ProductPrices";
         public static string PROCESSED_PRODUCT_PRICES_TABLE = "ProcessedProductPrices";
 
-        protected Logger logger;
+        protected ILogger logger;
+        protected static DbConnection connection;
 
-        public DbService() 
+        public DbService(ILogger logger) 
         {
-            logger = Logger.GetInstance();
+           this.logger = logger;
         }
+
+        public ILogger Logger { get { return logger; } }
 
         public void CreateDatabase()
         {
@@ -41,12 +44,12 @@ namespace VeggieMarketDataStore.DbInterfaces
             }
             catch (Exception ex)
             {
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, ex.StackTrace, Logger.LogType.Exception);
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, ex.StackTrace, LogType.Exception);
             }
-            finally
-            {
-                connection?.Close();
-            }
+            //finally
+            //{
+            //    connection?.Close();
+            //}
         }
 
         public bool Insert(string query, Dictionary<string, object> parameters)
@@ -64,7 +67,7 @@ namespace VeggieMarketDataStore.DbInterfaces
             }
             catch (Exception ex)
             {
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, ex.StackTrace, Logger.LogType.Exception);
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, ex.StackTrace, LogType.Exception);
             }
             finally
             {
@@ -89,7 +92,7 @@ namespace VeggieMarketDataStore.DbInterfaces
             }
             catch (Exception ex)
             {
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, ex.StackTrace, Logger.LogType.Exception);
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, ex.StackTrace, LogType.Exception);
             }
 
             return reader;
@@ -101,8 +104,10 @@ namespace VeggieMarketDataStore.DbInterfaces
             {
                 reader.Close();
                 reader.Dispose();
+                reader = null;
             }
-            connection.Close();
+            //connection.Close();
+            //connection.Dispose();
         }
 
         public Market CreateMarket(DbDataReader reader)
