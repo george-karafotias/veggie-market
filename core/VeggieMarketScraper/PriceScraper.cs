@@ -26,13 +26,13 @@ namespace VeggieMarketScraper
             chunkAdditionalDelayInMs = 60000;
         }
 
-        public string DownloadDay(DateTime day)
+        private string DownloadDay(DateTime day, string downloadFolder)
         {
             string dayUrl = ConstructDayUrl(day);
-            return DownloadFile(dayUrl);
+            return DownloadFile(dayUrl, downloadFolder);
         }
 
-        public string[] DownloadPeriod(DateTime startDate, DateTime endDate)
+        public string[] DownloadPeriod(DateTime startDate, DateTime endDate, string downloadFolder)
         {
             List<string> files = new List<string>();
             int chunkIndex = 0;
@@ -40,7 +40,7 @@ namespace VeggieMarketScraper
 
             foreach (DateTime day in EachDay(startDate, endDate))
             {
-                string file = DownloadDay(day);
+                string file = DownloadDay(day, downloadFolder);
                 if (!string.IsNullOrEmpty(file))
                 {
                     files.Add(file);
@@ -59,11 +59,11 @@ namespace VeggieMarketScraper
             return files.ToArray();
         }
 
-        public string[] DownloadYear(int year)
+        public string[] DownloadYear(int year, string downloadFolder)
         {
             DateTime firstDay = new DateTime(year, 1, 1);
             DateTime lastDay = new DateTime(year, 12, 31);
-            return DownloadPeriod(firstDay, lastDay);
+            return DownloadPeriod(firstDay, lastDay, downloadFolder);
         }
 
         private IEnumerable<DateTime> EachDay(DateTime from, DateTime thru)
@@ -72,7 +72,7 @@ namespace VeggieMarketScraper
                 yield return day;
         }
 
-        private string DownloadFile(string url)
+        private string DownloadFile(string url, string downloadFolder)
         {
             try
             {
@@ -80,8 +80,16 @@ namespace VeggieMarketScraper
                 {
                     client.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; " +
                                   "Windows NT 5.2; .NET CLR 1.0.3705;)");
+                    if (!string.IsNullOrEmpty(downloadFolder))
+                    {
+                        char lastCharacter = downloadFolder[downloadFolder.Length - 1];
+                        if (lastCharacter != '\\')
+                        {
+                            downloadFolder = downloadFolder + "\\";
+                        }
+                    }
                     string filename = System.IO.Path.GetFileName(url);
-                    client.DownloadFile(url, filename);
+                    client.DownloadFile(url, downloadFolder + filename);
                     return filename;
                 }
             }

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +10,7 @@ using VeggieMarketDataProcessor;
 using VeggieMarketDataReader;
 using VeggieMarketDataStore;
 using VeggieMarketDataStore.Models;
+using VeggieMarketScraper;
 using VeggieMarketUi.Models;
 
 namespace VeggieMarketUi
@@ -23,26 +21,68 @@ namespace VeggieMarketUi
     public partial class MainWindow : Window
     {
         private DataStorageService dataStorageService;
-        private Dictionary<string, MarketDataReader> marketMap;
-        private TextBoxLogger textBoxLogger;
+        private Dictionary<string, MarketDataReader> marketReaderMap;
+        private Dictionary<string, PriceScraper> marketPriceScraperMap;
+        private TextBoxLogger importDataTextBoxLogger;
+        private TextBoxLogger downloadDataTextBoxLogger;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            textBoxLogger = new TextBoxLogger(LogTextBox);
+            importDataTextBoxLogger = new TextBoxLogger(LogTextBox);
+            downloadDataTextBoxLogger = new TextBoxLogger(DownloadLogTextBox);
             InitializeData();
         }
 
         private void InitializeData()
         {
-            dataStorageService = DataStorageService.GetInstance(new SqliteDbService(textBoxLogger), textBoxLogger);
-            SetupMarkets();
+            dataStorageService = DataStorageService.GetInstance(new SqliteDbService(importDataTextBoxLogger), importDataTextBoxLogger);
+            List<string> marketNames = RetrieveMarketNames();
+            PopulateMarketReaderMap(marketNames);
+            PopulateMarketPriceScraperMap(marketNames);
+
+            MarketsComboBox.ItemsSource = marketNames;
+            MarketsComboBox.SelectedIndex = 0;
+
+            DownloadMarketsComboBox.ItemsSource = marketNames;
+            DownloadMarketsComboBox.SelectedIndex = 0;
         }
 
-        private void SetupMarkets()
+        private void PopulateMarketReaderMap(List<string> marketNames)
         {
-            marketMap = new Dictionary<string, MarketDataReader>();
+            marketReaderMap = new Dictionary<string, MarketDataReader>();
+            foreach (string marketName in marketNames)
+            {
+                if (IsRenth(marketName))
+                {
+                    marketReaderMap.Add(marketName, new RenthVeggieMarketDataReader(dataStorageService));
+                }
+                else if (IsThessaloniki(marketName))
+                {
+                    marketReaderMap.Add(marketName, new ThessVeggieMarketDataReader(dataStorageService));
+                }
+            }
+        }
+
+        private void PopulateMarketPriceScraperMap(List<string> marketNames)
+        {
+            marketPriceScraperMap = new Dictionary<string, PriceScraper>();
+            foreach (string marketName in marketNames)
+            {
+                if (IsRenth(marketName))
+                {
+                    marketPriceScraperMap.Add(marketName, new RenthPriceScraper(downloadDataTextBoxLogger));
+                }
+                else if (IsThessaloniki(marketName))
+                {
+                    marketPriceScraperMap.Add(marketName, new ThessPriceScraper(downloadDataTextBoxLogger));
+                }
+            }
+        }
+
+        private List<string> RetrieveMarketNames()
+        {
             Market[] markets = dataStorageService.MarketDbService.GetMarkets();
 
             List<string> marketNames = new List<string>();
@@ -57,20 +97,17 @@ namespace VeggieMarketUi
                 marketNames.Add("ΛΑΧΑΝΑΓΟΡΑ ΡΕΝΤΗ");
             }
 
-            foreach (string marketName in marketNames)
-            {
-                if (marketName.Contains("ΡΕΝΤΗ"))
-                {
-                    marketMap.Add(marketName, new RenthVeggieMarketDataReader(dataStorageService));
-                }
-                else if (marketName.Contains("ΘΕΣΣΑΛΟΝΙΚΗ"))
-                {
-                    marketMap.Add(marketName, new ThessVeggieMarketDataReader(dataStorageService));
-                }
-            }
+            return marketNames;
+        }
 
-            MarketsComboBox.ItemsSource = marketNames;
-            MarketsComboBox.SelectedIndex = 0;
+        private bool IsRenth(string marketName)
+        {
+            return marketName.Contains("ΡΕΝΤΗ");
+        }
+
+        private bool IsThessaloniki(string marketName)
+        {
+            return marketName.Contains("ΘΕΣΣΑΛΟΝΙΚΗ");
         }
 
         private MarketDataReader GetSelectedMarketDataReader()
@@ -78,7 +115,23 @@ namespace VeggieMarketUi
             if (MarketsComboBox.SelectedIndex < 0) return null;
 
             string selectedMarketName = MarketsComboBox.SelectedItem.ToString();
-            foreach (KeyValuePair<string, MarketDataReader> marketEntry in marketMap)
+            foreach (KeyValuePair<string, MarketDataReader> marketEntry in marketReaderMap)
+            {
+                if (marketEntry.Key == selectedMarketName)
+                {
+                    return marketEntry.Value;
+                }
+            }
+
+            return null;
+        }
+
+        private PriceScraper GetSelectedPriceScraper()
+        {
+            if (MarketsComboBox.SelectedIndex < 0) return null;
+
+            string selectedMarketName = MarketsComboBox.SelectedItem.ToString();
+            foreach (KeyValuePair<string, PriceScraper> marketEntry in marketPriceScraperMap)
             {
                 if (marketEntry.Key == selectedMarketName)
                 {
@@ -136,6 +189,18 @@ namespace VeggieMarketUi
             });
         }
 
+        private void DownloadFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+                if (result == System.Windows.Forms.DialogResult.OK)
+                {
+                    DownloadFolderTextBox.Text = dialog.SelectedPath;
+                }
+            }
+        }
+
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.Source is TabControl)
@@ -143,27 +208,103 @@ namespace VeggieMarketUi
                 TabItem selectedTab = (sender as TabControl).SelectedItem as TabItem;
                 if (selectedTab.Header.ToString() == "Available Data")
                 {
-                    GetAvailableData();
+                    PopulateAvailablePrices();
                 }
             }
         }
 
-        private void GetAvailableData()
+        private void DownloadMarketsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MarketAvailableData[] availableData = dataStorageService.MetadataDbService.GetAvailablePrices();
-            if (availableData == null || availableData.Length == 0) return;
+            string selectedMarketName = (sender as ComboBox).SelectedItem as string;
+            MarketAvailableData marketPrices = GetMarketAvailablePrices(selectedMarketName);
+        }
+
+        private void PopulateAvailablePrices()
+        {
+            MarketAvailableData[] availablePrices = dataStorageService.MetadataDbService.GetAvailablePrices();
+            if (availablePrices == null || availablePrices.Length == 0) return;
 
             ObservableCollection<PricePeriod> pricePeriods = new ObservableCollection<PricePeriod>();
-            foreach (MarketAvailableData marketData in availableData)
+            foreach (MarketAvailableData marketPrices in availablePrices)
             {
-                foreach (DatePeriod datePeriod in marketData.DatePeriods)
+                foreach (DatePeriod datePeriod in marketPrices.DatePeriods)
                 {
-                    PricePeriod pricePeriod = new PricePeriod(marketData.Market, datePeriod);
+                    PricePeriod pricePeriod = new PricePeriod(marketPrices.Market, datePeriod);
                     pricePeriods.Add(pricePeriod);
                 }
             }
 
             AvailablePricesDataGrid.ItemsSource = pricePeriods;
+        }
+
+        private MarketAvailableData GetMarketAvailablePrices(string marketName)
+        {
+            MarketAvailableData[] availablePrices = dataStorageService.MetadataDbService.GetAvailablePrices();
+            if (availablePrices == null || availablePrices.Length == 0) return null;
+
+            foreach (MarketAvailableData marketPrices in availablePrices)
+            {
+                if (marketPrices.Market.MarketName == marketName) return marketPrices;
+            }
+
+            return null;
+        }
+
+        private void DownloadDataButton_Click(object sender, RoutedEventArgs e)
+        {
+            DateTime? fromDate = FromDatePicker.SelectedDate;
+            if (fromDate == null)
+            {
+                ShowErrorMessage("Please select from date.");
+                return;
+            }
+
+            DateTime? toDate = ToDatePicker.SelectedDate;
+            if (toDate == null)
+            {
+                ShowErrorMessage("Please select to date.");
+                return;
+            }
+
+            if (toDate.Value < fromDate.Value)
+            {
+                ShowErrorMessage("The to date must be greater or equal to the from date.");
+                return;
+            }
+
+            DateTime today = DateTime.Now;
+            if (fromDate.Value > today || toDate.Value > today)
+            {
+                ShowErrorMessage("The from and to date cannot be in the future.");
+                return;
+            }
+
+            string downloadFolder = DownloadFolderTextBox.Text;
+            if (string.IsNullOrEmpty(downloadFolder))
+            {
+                ShowErrorMessage("Please select a download folder.");
+                return;
+            }
+
+            if (!Directory.Exists(downloadFolder))
+            {
+                ShowErrorMessage("The download folder does not exist.");
+                return;
+            }
+
+            PriceScraper priceScraper = GetSelectedPriceScraper();
+            if (priceScraper == null)
+            {
+                ShowErrorMessage("The selected market is not supported.");
+                return;
+            }
+
+            priceScraper.DownloadPeriod(fromDate.Value, toDate.Value, downloadFolder);
+        }
+
+        private void ShowErrorMessage(string errorMessage)
+        {
+            MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }

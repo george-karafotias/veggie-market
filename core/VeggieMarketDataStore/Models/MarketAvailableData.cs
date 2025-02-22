@@ -1,4 +1,6 @@
-﻿namespace VeggieMarketDataStore.Models
+﻿using System.Collections.Generic;
+
+namespace VeggieMarketDataStore.Models
 {
     public class MarketAvailableData
     {

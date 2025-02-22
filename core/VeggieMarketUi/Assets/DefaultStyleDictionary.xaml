@@ -5,6 +5,7 @@
     </Style>
     <Style x:Key="BaseButton" TargetType="Button" BasedOn="{StaticResource BaseStyle}">
         <Setter Property="Padding" Value="5"></Setter>
+        <Setter Property="Width" Value="100"></Setter>
         <Style.Resources>
             <Style TargetType="Border">
                 <Setter Property="CornerRadius" Value="5" />
@@ -12,14 +13,14 @@
         </Style.Resources>
     </Style>
     <Style x:Key="OpenFileButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
-        <Setter Property="Width" Value="100"></Setter>
         <Setter Property="Background" Value="LightYellow"></Setter>
     </Style>
     <Style x:Key="ImportFileButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
-        <Setter Property="Width" Value="100"></Setter>
         <Setter Property="Background" Value="LightBlue"></Setter>
     </Style>
-
+    <Style x:Key="GoButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <Setter Property="Background" Value="LightGreen"></Setter>
+    </Style>
     <Style TargetType="TextBox" BasedOn="{StaticResource BaseStyle}">
         <Setter Property="Padding" Value="5"></Setter>
     </Style>

@@ -125,6 +125,10 @@
       <Project>{5A0FB624-15B1-44A3-B62C-5AC1885C5113}</Project>
       <Name>VeggieMarketLogger</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VeggieMarketScraper\VeggieMarketScraper.csproj">
+      <Project>{CA572C9D-9B58-4B20-BED4-8BB9F28A3D9C}</Project>
+      <Name>VeggieMarketScraper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
