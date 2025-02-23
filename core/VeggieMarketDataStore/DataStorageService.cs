@@ -50,7 +50,7 @@ namespace VeggieMarketDataStore
 
         public MetadataDbService MetadataDbService { get { return metadataDbService; } }
 
-        public ILogger Logger { get { return logger; } }
+        public ILogger Logger { get { return logger; } set { this.logger = value; } }
 
         private void CreateDatabase()
         {

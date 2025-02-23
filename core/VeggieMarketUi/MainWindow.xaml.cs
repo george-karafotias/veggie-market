@@ -10,6 +10,7 @@ using VeggieMarketDataProcessor;
 using VeggieMarketDataReader;
 using VeggieMarketDataStore;
 using VeggieMarketDataStore.Models;
+using VeggieMarketLogger;
 using VeggieMarketScraper;
 using VeggieMarketUi.Models;
 
@@ -110,11 +111,8 @@ namespace VeggieMarketUi
             return marketName.Contains("ΘΕΣΣΑΛΟΝΙΚΗ");
         }
 
-        private MarketDataReader GetSelectedMarketDataReader()
+        private MarketDataReader GetSelectedMarketDataReader(string selectedMarketName)
         {
-            if (MarketsComboBox.SelectedIndex < 0) return null;
-
-            string selectedMarketName = MarketsComboBox.SelectedItem.ToString();
             foreach (KeyValuePair<string, MarketDataReader> marketEntry in marketReaderMap)
             {
                 if (marketEntry.Key == selectedMarketName)
@@ -122,15 +120,11 @@ namespace VeggieMarketUi
                     return marketEntry.Value;
                 }
             }
-
             return null;
         }
 
-        private PriceScraper GetSelectedPriceScraper()
+        private PriceScraper GetSelectedPriceScraper(string selectedMarketName)
         {
-            if (MarketsComboBox.SelectedIndex < 0) return null;
-
-            string selectedMarketName = MarketsComboBox.SelectedItem.ToString();
             foreach (KeyValuePair<string, PriceScraper> marketEntry in marketPriceScraperMap)
             {
                 if (marketEntry.Key == selectedMarketName)
@@ -138,7 +132,6 @@ namespace VeggieMarketUi
                     return marketEntry.Value;
                 }
             }
-
             return null;
         }
 
@@ -154,8 +147,11 @@ namespace VeggieMarketUi
 
         private void ImportFileButton_Click(object sender, RoutedEventArgs e)
         {
-            MarketDataReader marketDataReader = GetSelectedMarketDataReader();
+            if (MarketsComboBox.SelectedIndex < 0) return;
+            string selectedMarketName = MarketsComboBox.SelectedItem.ToString();
+            MarketDataReader marketDataReader = GetSelectedMarketDataReader(selectedMarketName);
             if (marketDataReader == null) return;
+
             LogTextBox.Text = "";
             marketDataReader.ReadSingleDay(OpenFileTextBox.Text);
         }
@@ -174,19 +170,13 @@ namespace VeggieMarketUi
 
         private void ImportFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            MarketDataReader marketDataReader = GetSelectedMarketDataReader();
-            if (marketDataReader == null) return;
-            LogTextBox.Text = "";
-            string folderPath = @OpenFolderTextBox.Text;
+            if (MarketsComboBox.SelectedIndex < 0) return;
             string selectedMarketName = MarketsComboBox.SelectedItem.ToString();
-            DataProcessor dataProcessor = new DataProcessor(dataStorageService);
 
-            Task.Run(() =>
-            {    
-                string[] priceFiles = Directory.GetFiles(folderPath, "*.xls", SearchOption.AllDirectories);
-                DateTime[] days = marketDataReader.ReadMultipleDays(priceFiles);
-                dataProcessor.ProcessProductPrices(selectedMarketName, days);
-            });
+            LogTextBox.Text = "";
+            string[] priceFiles = Directory.GetFiles(@OpenFolderTextBox.Text, "*.xls", SearchOption.AllDirectories);
+            bool processData = ProcessDataAfterInsertCheckBox.IsChecked.HasValue && ProcessDataAfterInsertCheckBox.IsChecked.Value;
+            InsertPricesToDatabase(selectedMarketName, priceFiles, processData, importDataTextBoxLogger);
         }
 
         private void DownloadFolderButton_Click(object sender, RoutedEventArgs e)
@@ -292,19 +282,108 @@ namespace VeggieMarketUi
                 return;
             }
 
-            PriceScraper priceScraper = GetSelectedPriceScraper();
-            if (priceScraper == null)
-            {
-                ShowErrorMessage("The selected market is not supported.");
-                return;
-            }
+            if (DownloadMarketsComboBox.SelectedIndex < 0) return;
+            string selectedMarketName = DownloadMarketsComboBox.SelectedItem.ToString();
 
-            priceScraper.DownloadPeriod(fromDate.Value, toDate.Value, downloadFolder);
+            DownloadLogTextBox.Text = "";
+            if (ImportToDbAfterDownloadCheckBox.IsChecked.HasValue && ImportToDbAfterDownloadCheckBox.IsChecked.Value)
+            {
+                bool processData = ProcessDataAfterDownloadAndInsertCheckBox.IsChecked.HasValue && ProcessDataAfterDownloadAndInsertCheckBox.IsChecked.Value;
+                DownloadPricesAndInsertToDatabase(selectedMarketName, fromDate.Value, toDate.Value, downloadFolder, processData, downloadDataTextBoxLogger);
+            }
+            else
+            {
+                DownloadPrices(selectedMarketName, fromDate.Value, toDate.Value, downloadFolder);
+            }
         }
 
         private void ShowErrorMessage(string errorMessage)
         {
             MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void ShowNoPriceScraperError()
+        {
+            ShowErrorMessage("The selected market prices cannot be downloaded.");
+        }
+
+        private void ShowNoMarketReaderError()
+        {
+            ShowErrorMessage("There is no way to insert the selected prices to the database.");
+        }
+
+        private void InsertPricesToDatabase(string marketName, string[] priceFiles, bool processPrices, ILogger logger)
+        {
+            MarketDataReader marketDataReader = GetSelectedMarketDataReader(marketName);
+            if (marketDataReader == null)
+            {
+                ShowNoMarketReaderError();
+                return;
+            }
+
+            dataStorageService.Logger = logger;
+            DataProcessor dataProcessor = new DataProcessor(dataStorageService);
+
+            Task.Run(() =>
+            {
+                DateTime[] days = marketDataReader.ReadMultipleDays(priceFiles);
+                if (processPrices)
+                {
+                    dataProcessor.ProcessProductPrices(marketName, days);
+                }
+            });
+        }
+
+        private void DownloadPrices(string marketName, DateTime fromDate, DateTime toDate, string downloadFolder)
+        {
+            PriceScraper priceScraper = GetSelectedPriceScraper(marketName);
+            if (priceScraper == null)
+            {
+                ShowNoPriceScraperError();
+                return;
+            }
+
+            Task.Run(() =>
+            {
+                string[] priceFiles = priceScraper.DownloadPeriod(fromDate, toDate, downloadFolder);
+            });
+        }
+
+        private void DownloadPricesAndInsertToDatabase(
+            string marketName, 
+            DateTime fromDate, 
+            DateTime toDate, 
+            string downloadFolder,
+            bool processPrices,
+            ILogger logger)
+        {
+            PriceScraper priceScraper = GetSelectedPriceScraper(marketName);
+            if (priceScraper == null)
+            {
+                ShowNoPriceScraperError();
+                return;
+            }
+
+            MarketDataReader marketDataReader = GetSelectedMarketDataReader(marketName);
+            if (marketDataReader == null)
+            {
+                ShowNoMarketReaderError();
+                return;
+            }
+
+            dataStorageService.Logger = logger;
+            marketDataReader.Logger = logger;
+            DataProcessor dataProcessor = new DataProcessor(dataStorageService);
+
+            Task.Run(() =>
+            {
+                string[] priceFiles = priceScraper.DownloadPeriod(fromDate, toDate, downloadFolder);
+                DateTime[] days = marketDataReader.ReadMultipleDays(priceFiles);
+                if (processPrices)
+                {
+                    dataProcessor.ProcessProductPrices(marketName, days);
+                }
+            });
         }
     }
 }

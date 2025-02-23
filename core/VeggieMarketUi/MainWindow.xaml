@@ -25,7 +25,12 @@
                         
                     </ComboBox>
                 </StackPanel>
-                
+
+                <StackPanel Orientation="Horizontal">
+                    <Label>Process prices after inserting the raw data:</Label>
+                    <CheckBox x:Name="ProcessDataAfterInsertCheckBox" VerticalAlignment="Center"></CheckBox>
+                </StackPanel>
+
                 <StackPanel Orientation="Horizontal">
                     <TextBox x:Name="OpenFileTextBox" Width="800" IsReadOnly="True" Text="Click the Open File button to open a data file..."></TextBox>
                     <Button Click="OpenFileButton_Click" Style="{StaticResource OpenFileButton}">Open File</Button>
@@ -63,6 +68,8 @@
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
 
                     <Label Grid.Row="0" Grid.Column="0">Market:</Label>
@@ -79,6 +86,16 @@
                     <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1">
                         <DatePicker x:Name="ToDatePicker"/>
                         <TextBlock/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.ColumnSpan="2">
+                        <Label>Import to database after downloading: </Label>
+                        <CheckBox x:Name="ImportToDbAfterDownloadCheckBox" VerticalAlignment="Center"></CheckBox>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.ColumnSpan="2">
+                        <Label>Process prices after inserting the raw data:</Label>
+                        <CheckBox x:Name="ProcessDataAfterDownloadAndInsertCheckBox" VerticalAlignment="Center"></CheckBox>
                     </StackPanel>
                 </Grid>
 

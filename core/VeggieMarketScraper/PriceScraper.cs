@@ -22,7 +22,7 @@ namespace VeggieMarketScraper
             this.url = url;
             this.logger = logger;
             requestDelayInMs = 1000;
-            chunkSize = 30;
+            chunkSize = 31;
             chunkAdditionalDelayInMs = 60000;
         }
 
@@ -37,6 +37,8 @@ namespace VeggieMarketScraper
             List<string> files = new List<string>();
             int chunkIndex = 0;
             int chunkDelay = chunkAdditionalDelayInMs;
+            int totalNumberOfDays = (endDate - startDate).Days + 1;
+            int dayIndex = 1;
 
             foreach (DateTime day in EachDay(startDate, endDate))
             {
@@ -51,9 +53,14 @@ namespace VeggieMarketScraper
                 if (chunkIndex == chunkSize)
                 {
                     chunkIndex = 0;
-                    Thread.Sleep(chunkDelay);
-                    chunkDelay += chunkAdditionalDelayInMs;
+                    if (dayIndex != totalNumberOfDays)
+                    {
+                        Thread.Sleep(chunkDelay);
+                        chunkDelay += chunkAdditionalDelayInMs;
+                    }
                 }
+
+                dayIndex++;
             }
 
             return files.ToArray();
@@ -74,6 +81,8 @@ namespace VeggieMarketScraper
 
         private string DownloadFile(string url, string downloadFolder)
         {
+            logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Downloading " + url, LogType.Info);
+
             try
             {
                 using (var client = new WebClient())
@@ -89,8 +98,11 @@ namespace VeggieMarketScraper
                         }
                     }
                     string filename = System.IO.Path.GetFileName(url);
-                    client.DownloadFile(url, downloadFolder + filename);
-                    return filename;
+                    string filePath = downloadFolder + filename;
+                    client.DownloadFile(url, filePath);
+
+                    logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Downloaded " + url, LogType.Info);
+                    return filePath;
                 }
             }
             catch (Exception ex)

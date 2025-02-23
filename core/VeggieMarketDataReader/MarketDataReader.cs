@@ -20,6 +20,15 @@ namespace VeggieMarketDataReader
             logger = this.dataStorageService.Logger;
         }
 
+        public ILogger Logger
+        {
+            set
+            {
+                this.dataStorageService.Logger = value;
+                this.logger = value;
+            }
+        }
+
         public DateTime[] ReadMultipleDays(string[] files)
         {
             try
