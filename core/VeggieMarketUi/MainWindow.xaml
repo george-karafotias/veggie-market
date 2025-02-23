@@ -20,9 +20,9 @@
         <TabItem Header="Import Data">
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Horizontal">
-                    <Label>Select Market: </Label>
+                    <Label>Select Market:</Label>
                     <ComboBox x:Name="MarketsComboBox">
-                        
+
                     </ComboBox>
                 </StackPanel>
 
@@ -36,7 +36,7 @@
                     <Button Click="OpenFileButton_Click" Style="{StaticResource OpenFileButton}">Open File</Button>
                     <Button Click="ImportFileButton_Click" Style="{StaticResource ImportFileButton}">Import File</Button>
                 </StackPanel>
-                
+
                 <StackPanel Orientation="Horizontal">
                     <TextBox x:Name="OpenFolderTextBox" Width="800" IsReadOnly="True" Text="Click the Open Folder button to open a data folder..."></TextBox>
                     <Button Click="OpenFolderButton_Click" Style="{StaticResource OpenFileButton}">Open Folder</Button>
@@ -45,16 +45,6 @@
 
                 <TextBox TextWrapping="Wrap" Height="600" IsReadOnly="True" VerticalScrollBarVisibility="Auto"  AcceptsReturn="True" Name="LogTextBox"/>
             </StackPanel>
-        </TabItem>
-
-        <TabItem Header="Available Data">
-            <DataGrid x:Name="AvailablePricesDataGrid" AutoGenerateColumns="False" IsReadOnly="True">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Market" Binding="{Binding MarketName}"/>
-                    <DataGridTextColumn Header="Start Date" Binding="{Binding StartDate}"/>
-                    <DataGridTextColumn Header="End Date" Binding="{Binding EndDate}"/>
-                </DataGrid.Columns>
-            </DataGrid>
         </TabItem>
 
         <TabItem Header="Download Data">
@@ -111,6 +101,16 @@
 
                 <TextBox TextWrapping="Wrap" Height="600" IsReadOnly="True" VerticalScrollBarVisibility="Auto"  AcceptsReturn="True" Name="DownloadLogTextBox"/>
             </StackPanel>
+        </TabItem>
+
+        <TabItem Header="Available Data">
+            <DataGrid x:Name="AvailablePricesDataGrid" AutoGenerateColumns="False" IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Market" Binding="{Binding MarketName}"/>
+                    <DataGridTextColumn Header="Start Date" Binding="{Binding StartDate}"/>
+                    <DataGridTextColumn Header="End Date" Binding="{Binding EndDate}"/>
+                </DataGrid.Columns>
+            </DataGrid>
         </TabItem>
     </TabControl>
 </Window>
