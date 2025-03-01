@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using VeggieMarketDataStore.Models;
 using VeggieMarketLogger;
@@ -93,7 +94,8 @@ namespace VeggieMarketDataReader
                 {
                     priceParts[0] = NormalizePrice(priceParts[0].Trim());
                     priceParts[1] = NormalizePrice(priceParts[1].Trim());
-                    if (double.TryParse(priceParts[0], out double minPrice) && double.TryParse(priceParts[1], out double maxPrice))
+                    CultureInfo culture = CultureInfo.InvariantCulture;
+                    if (double.TryParse(priceParts[0], NumberStyles.Any, culture, out double minPrice) && double.TryParse(priceParts[1], NumberStyles.Any, culture, out double maxPrice))
                     {
                         minMaxPrice = new double[priceParts.Length];
                         minMaxPrice[0] = minPrice;

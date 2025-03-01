@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:local="clr-namespace:VeggieMarketUi"
         mc:Ignorable="d"
         Title="Veggie Prices" Height="768" Width="1024" WindowState="Maximized">
@@ -21,7 +22,7 @@
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Horizontal">
                     <Label>Select Market:</Label>
-                    <ComboBox x:Name="MarketsComboBox">
+                    <ComboBox x:Name="ImportDataMarketsComboBox">
 
                     </ComboBox>
                 </StackPanel>
@@ -63,7 +64,7 @@
                     </Grid.RowDefinitions>
 
                     <Label Grid.Row="0" Grid.Column="0">Market:</Label>
-                    <ComboBox Grid.Row="0" Grid.Column="1" x:Name="DownloadMarketsComboBox" SelectionChanged="DownloadMarketsComboBox_SelectionChanged">
+                    <ComboBox Grid.Row="0" Grid.Column="1" x:Name="DownloadDataMarketsComboBox">
                     </ComboBox>
 
                     <Label Grid.Row="1" Grid.Column="0">From Date:</Label>
@@ -111,6 +112,94 @@
                     <DataGridTextColumn Header="End Date" Binding="{Binding EndDate}"/>
                 </DataGrid.Columns>
             </DataGrid>
+        </TabItem>
+
+        <TabItem Header="Data Analysis">
+            <StackPanel Orientation="Vertical">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Width="400" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Row="0" Grid.Column="0">Market:</Label>
+                        <ComboBox Grid.Row="0" Grid.Column="1" x:Name="DataAnalysisMarketsComboBox">
+                        </ComboBox>
+
+                        <Label Grid.Row="1" Grid.Column="0">Product:</Label>
+                        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="DataAnalysisProductsComboBox">
+                        </ComboBox>
+
+                        <Label Grid.Row="2" Grid.Column="0">From Date:</Label>
+                        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1">
+                            <DatePicker x:Name="DataAnalysisFromDatePicker"/>
+                            <TextBlock/>
+                        </StackPanel>
+
+                        <Label Grid.Row="3" Grid.Column="0">To Date:</Label>
+                        <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1">
+                            <DatePicker x:Name="DataAnalysisToDatePicker"/>
+                            <TextBlock/>
+                        </StackPanel>
+                    </Grid>
+
+                    <GridSplitter Grid.Column="1" Width="5" Margin="50,0,50,0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="LightGreen" />
+                    
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <Label>Prices:</Label>
+                        <ListBox x:Name="PricesListBox" SelectionMode="Multiple" Width="300" Height="160">
+                            <ListBoxItem>Category 1 Min Price</ListBoxItem>
+                            <ListBoxItem>Category 1 Max Price</ListBoxItem>
+                            <ListBoxItem>Category 2 Min Price</ListBoxItem>
+                            <ListBoxItem>Category 2 Max Price</ListBoxItem>
+                            <ListBoxItem>Dominant Price</ListBoxItem>
+                            <ListBoxItem>Previous Week Dominant Price</ListBoxItem>
+                            <ListBoxItem>Previous Year Dominant Price</ListBoxItem>
+                            <ListBoxItem>Extra Category</ListBoxItem>
+                            <ListBoxItem>Previous Week Price Difference</ListBoxItem>
+                            <ListBoxItem>Previous Year Price Difference</ListBoxItem>
+                            <ListBoxItem>Quantity to Supply</ListBoxItem>
+                            <ListBoxItem>Sold Quantity Percentage</ListBoxItem>
+                        </ListBox>
+                    </StackPanel>
+
+                    <GridSplitter Grid.Column="3" Width="5" Margin="50,0,50,0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="LightGreen" />
+
+                    <StackPanel Grid.Column="4" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Button x:Name="RetrievePricesButton" Style="{StaticResource GoButton}" Margin="0,0,0,20" Click="RetrievePricesButton_Click">Retrieve Prices</Button>
+                        <Button x:Name="PlotButton" Click="PlotButton_Click" Style="{StaticResource GoButton}" Margin="0,0,0,20" Visibility="Collapsed">Plot</Button>
+                        <Button x:Name="ExportPricesButton" Click="ExportPricesButton_Click" Style="{StaticResource GoButton}" Visibility="Collapsed">Export</Button>
+                    </StackPanel>
+                </Grid>
+                
+                
+
+                <Grid>
+                    <lvc:CartesianChart x:Name="LineChart"   Background="White" HorizontalAlignment="Left" Width="640" Height="400" Visibility="Hidden">
+                        <lvc:CartesianChart.AxisX>
+                            <lvc:Axis x:Name="LineChartHorizontalAxis" Title="Date" />
+                        </lvc:CartesianChart.AxisX>
+                        <lvc:CartesianChart.AxisY>
+                            <lvc:Axis x:Name="LineChartVerticalAxis" Title="Price" />
+                        </lvc:CartesianChart.AxisY>
+                    </lvc:CartesianChart>
+                </Grid>
+            </StackPanel>
         </TabItem>
     </TabControl>
 </Window>

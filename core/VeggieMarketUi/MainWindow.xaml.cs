@@ -5,6 +5,8 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using LiveCharts.Wpf;
+using LiveCharts;
 using Microsoft.Win32;
 using VeggieMarketDataProcessor;
 using VeggieMarketDataReader;
@@ -13,6 +15,7 @@ using VeggieMarketDataStore.Models;
 using VeggieMarketLogger;
 using VeggieMarketScraper;
 using VeggieMarketUi.Models;
+using System.Linq;
 
 namespace VeggieMarketUi
 {
@@ -26,6 +29,8 @@ namespace VeggieMarketUi
         private Dictionary<string, PriceScraper> marketPriceScraperMap;
         private TextBoxLogger importDataTextBoxLogger;
         private TextBoxLogger downloadDataTextBoxLogger;
+        private PriceRetrievalParameters priceRetrievalParameters;
+        private IEnumerable<ProductPrice> retrievedPrices;
 
         public MainWindow()
         {
@@ -39,15 +44,34 @@ namespace VeggieMarketUi
         private void InitializeData()
         {
             dataStorageService = DataStorageService.GetInstance(new SqliteDbService(importDataTextBoxLogger), importDataTextBoxLogger);
-            List<string> marketNames = RetrieveMarketNames();
+
+            Market[] markets = dataStorageService.MarketDbService.GetMarkets();
+            List<string> marketNames = RetrieveMarketNames(markets);
             PopulateMarketReaderMap(marketNames);
             PopulateMarketPriceScraperMap(marketNames);
 
-            MarketsComboBox.ItemsSource = marketNames;
-            MarketsComboBox.SelectedIndex = 0;
+            ImportDataMarketsComboBox.ItemsSource = marketNames;
+            ImportDataMarketsComboBox.SelectedIndex = 0;
+            DownloadDataMarketsComboBox.ItemsSource = marketNames;
+            DownloadDataMarketsComboBox.SelectedIndex = 0;
 
-            DownloadMarketsComboBox.ItemsSource = marketNames;
-            DownloadMarketsComboBox.SelectedIndex = 0;
+            IEnumerable<Product> products = dataStorageService.ProductDbService.GetProducts();
+            PopulateMarketsComboBox(DataAnalysisMarketsComboBox, markets);
+            PopulateProductsComboBox(DataAnalysisProductsComboBox, products);
+        }
+
+        private void PopulateProductsComboBox(ComboBox productsComboBox, IEnumerable<Product> products)
+        {
+            productsComboBox.ItemsSource = products;
+            productsComboBox.DisplayMemberPath = "ProductName";
+            productsComboBox.SelectedValuePath = "ProductId";
+        }
+
+        private void PopulateMarketsComboBox(ComboBox marketsComboBox, Market[] markets)
+        {
+            marketsComboBox.ItemsSource = markets;
+            marketsComboBox.DisplayMemberPath = "MarketName";
+            marketsComboBox.SelectedValuePath = "MarketId";
         }
 
         private void PopulateMarketReaderMap(List<string> marketNames)
@@ -82,14 +106,15 @@ namespace VeggieMarketUi
             }
         }
 
-        private List<string> RetrieveMarketNames()
+        private List<string> RetrieveMarketNames(Market[] markets)
         {
-            Market[] markets = dataStorageService.MarketDbService.GetMarkets();
-
             List<string> marketNames = new List<string>();
-            foreach (Market market in markets)
+            if (markets != null)
             {
-                marketNames.Add(market.MarketName);
+                foreach (Market market in markets)
+                {
+                    marketNames.Add(market.MarketName);
+                }
             }
 
             if (marketNames.Count == 0)
@@ -123,7 +148,7 @@ namespace VeggieMarketUi
             return null;
         }
 
-        private PriceScraper GetSelectedPriceScraper(string selectedMarketName)
+        private PriceScraper GetSelectedMarketPriceScraper(string selectedMarketName)
         {
             foreach (KeyValuePair<string, PriceScraper> marketEntry in marketPriceScraperMap)
             {
@@ -138,7 +163,7 @@ namespace VeggieMarketUi
         private void OpenFileButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Excel files (*.xls)|*.xlsx";
+            openFileDialog.Filter = "Excel Files|*.xls;*.xlsx;*.xlsm|All Files|*.*";
             if (openFileDialog.ShowDialog() == true)
             {
                 OpenFileTextBox.Text = openFileDialog.FileName;
@@ -147,8 +172,8 @@ namespace VeggieMarketUi
 
         private void ImportFileButton_Click(object sender, RoutedEventArgs e)
         {
-            if (MarketsComboBox.SelectedIndex < 0) return;
-            string selectedMarketName = MarketsComboBox.SelectedItem.ToString();
+            if (ImportDataMarketsComboBox.SelectedIndex < 0) return;
+            string selectedMarketName = ImportDataMarketsComboBox.SelectedItem.ToString();
             MarketDataReader marketDataReader = GetSelectedMarketDataReader(selectedMarketName);
             if (marketDataReader == null) return;
 
@@ -170,8 +195,8 @@ namespace VeggieMarketUi
 
         private void ImportFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            if (MarketsComboBox.SelectedIndex < 0) return;
-            string selectedMarketName = MarketsComboBox.SelectedItem.ToString();
+            if (ImportDataMarketsComboBox.SelectedIndex < 0) return;
+            string selectedMarketName = ImportDataMarketsComboBox.SelectedItem.ToString();
 
             LogTextBox.Text = "";
             string[] priceFiles = Directory.GetFiles(@OpenFolderTextBox.Text, "*.xls", SearchOption.AllDirectories);
@@ -203,12 +228,6 @@ namespace VeggieMarketUi
             }
         }
 
-        private void DownloadMarketsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            string selectedMarketName = (sender as ComboBox).SelectedItem as string;
-            MarketAvailableData marketPrices = GetMarketAvailablePrices(selectedMarketName);
-        }
-
         private void PopulateAvailablePrices()
         {
             MarketAvailableData[] availablePrices = dataStorageService.MetadataDbService.GetAvailablePrices();
@@ -225,19 +244,6 @@ namespace VeggieMarketUi
             }
 
             AvailablePricesDataGrid.ItemsSource = pricePeriods;
-        }
-
-        private MarketAvailableData GetMarketAvailablePrices(string marketName)
-        {
-            MarketAvailableData[] availablePrices = dataStorageService.MetadataDbService.GetAvailablePrices();
-            if (availablePrices == null || availablePrices.Length == 0) return null;
-
-            foreach (MarketAvailableData marketPrices in availablePrices)
-            {
-                if (marketPrices.Market.MarketName == marketName) return marketPrices;
-            }
-
-            return null;
         }
 
         private void DownloadDataButton_Click(object sender, RoutedEventArgs e)
@@ -282,8 +288,8 @@ namespace VeggieMarketUi
                 return;
             }
 
-            if (DownloadMarketsComboBox.SelectedIndex < 0) return;
-            string selectedMarketName = DownloadMarketsComboBox.SelectedItem.ToString();
+            if (DownloadDataMarketsComboBox.SelectedIndex < 0) return;
+            string selectedMarketName = DownloadDataMarketsComboBox.SelectedItem.ToString();
 
             DownloadLogTextBox.Text = "";
             if (ImportToDbAfterDownloadCheckBox.IsChecked.HasValue && ImportToDbAfterDownloadCheckBox.IsChecked.Value)
@@ -336,7 +342,7 @@ namespace VeggieMarketUi
 
         private void DownloadPrices(string marketName, DateTime fromDate, DateTime toDate, string downloadFolder)
         {
-            PriceScraper priceScraper = GetSelectedPriceScraper(marketName);
+            PriceScraper priceScraper = GetSelectedMarketPriceScraper(marketName);
             if (priceScraper == null)
             {
                 ShowNoPriceScraperError();
@@ -357,7 +363,7 @@ namespace VeggieMarketUi
             bool processPrices,
             ILogger logger)
         {
-            PriceScraper priceScraper = GetSelectedPriceScraper(marketName);
+            PriceScraper priceScraper = GetSelectedMarketPriceScraper(marketName);
             if (priceScraper == null)
             {
                 ShowNoPriceScraperError();
@@ -384,6 +390,129 @@ namespace VeggieMarketUi
                     dataProcessor.ProcessProductPrices(marketName, days);
                 }
             });
+        }
+
+        private void RetrievePricesButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataAnalysisMarketsComboBox.SelectedValue == null)
+            {
+                ShowErrorMessage("Please select the market.");
+                return;
+            }
+
+            if (DataAnalysisProductsComboBox.SelectedValue == null)
+            {
+                ShowErrorMessage("Please select a product.");
+                return;
+            }
+
+            DateTime? fromDate = DataAnalysisFromDatePicker.SelectedDate;
+            if (fromDate == null)
+            {
+                ShowErrorMessage("Please select from date.");
+                return;
+            }
+
+            DateTime? toDate = DataAnalysisToDatePicker.SelectedDate;
+            if (toDate == null)
+            {
+                ShowErrorMessage("Please select to date.");
+                return;
+            }
+
+            int productId = Convert.ToInt32(DataAnalysisProductsComboBox.SelectedValue);
+            int marketId = Convert.ToInt32(DataAnalysisMarketsComboBox.SelectedValue);
+            priceRetrievalParameters = new PriceRetrievalParameters();
+            priceRetrievalParameters.ProductId = productId;
+            priceRetrievalParameters.MarketId = marketId;
+            priceRetrievalParameters.FromDate = fromDate.Value;
+            priceRetrievalParameters.ToDate = toDate.Value;
+
+            retrievedPrices = dataStorageService.ProcessedProductPriceDbService.GetProcessedProductMarketPrices(priceRetrievalParameters.ProductId, priceRetrievalParameters.MarketId, priceRetrievalParameters.FromDate, priceRetrievalParameters.ToDate);
+
+            if (retrievedPrices == null)
+            {
+                ShowErrorMessage("No prices found for the selected time period.");
+                return;
+            }
+
+            PlotButton.Visibility = Visibility.Visible;
+            ExportPricesButton.Visibility = Visibility.Visible;
+        }
+
+        private void PlotButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (PricesListBox.SelectedItems == null)
+            {
+                ShowErrorMessage("Please select at least one price indicator.");
+                return;
+            }
+
+            List<string> selectedPriceTypes = new List<string>();
+            foreach (ListBoxItem selectedItem in PricesListBox.SelectedItems)
+            {
+                selectedPriceTypes.Add(selectedItem.Content.ToString());
+            }
+
+            List<string> labels = new List<string>();
+            for (DateTime date = priceRetrievalParameters.FromDate.Value; date <= priceRetrievalParameters.ToDate.Value; date = date.AddDays(1))
+            {
+                labels.Add(date.ToString("dd/MM"));
+            }
+            Func<double, string> formatter = value => new DateTime((long)value).ToString("dd/MM");
+
+            SeriesCollection seriesCollection = new SeriesCollection();
+            foreach (string priceType in selectedPriceTypes)
+            {
+                double?[] priceValues = GetPriceValues(priceType);
+                LineSeries lineSeries = new LineSeries();
+                lineSeries.Title = priceType;
+                lineSeries.Values = PrepareDataForChart(priceValues);
+                seriesCollection.Add(lineSeries);
+            }
+
+            LineChart.Series = seriesCollection;
+            LineChartHorizontalAxis.Labels = labels;
+            LineChartHorizontalAxis.LabelFormatter = formatter;
+            LineChart.Visibility = Visibility.Visible;
+        }
+
+        private double?[] GetPriceValues(string priceType)
+        {
+            double?[] priceValues = new double?[retrievedPrices.Count()];
+            int index = 0;
+            foreach (ProductPrice productPrice in retrievedPrices)
+            {
+                if (priceType == "Category 1 Min Price")
+                {
+                    priceValues[index] = productPrice.Category1MinPrice;
+                }
+
+                index++;
+            }
+
+            return priceValues;
+        }
+
+        private ChartValues<double> PrepareDataForChart(double?[] data)
+        {
+            ChartValues<double> values = new ChartValues<double>();
+            foreach (double? value in data)
+            {
+                values.Add(value.Value);
+            }
+            return values;
+        }
+
+        private void ExportPricesButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (retrievedPrices == null)
+            {
+                ShowErrorMessage("No prices retrieved.");
+                return;
+            }
+
+
         }
     }
 }

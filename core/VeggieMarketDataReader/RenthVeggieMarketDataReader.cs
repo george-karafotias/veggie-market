@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using VeggieMarketDataStore.Models;
 
@@ -75,17 +76,19 @@ namespace VeggieMarketDataReader
 
         protected override ProductPrice ExtractProductPrice(DataRow row, Product product, long productDate)
         {
-            string extraCategory = Convert.ToString(row[EXTRA_CATEGORY_PRICE_COLUMN_INDEX]);
-            string category1 = Convert.ToString(row[CATEGORY1_PRICE_COLUMN_INDEX]);
+            CultureInfo culture = CultureInfo.InvariantCulture;
+
+            string extraCategory = NormalizePrice(Convert.ToString(row[EXTRA_CATEGORY_PRICE_COLUMN_INDEX]));
+            string category1 = NormalizePrice(Convert.ToString(row[CATEGORY1_PRICE_COLUMN_INDEX]));
             double[] category1MinMaxPrice = ExtractMinMaxPrice(category1);
-            string category2 = Convert.ToString(row[CATEGORY2_PRICE_COLUMN_INDEX]);
+            string category2 = NormalizePrice(Convert.ToString(row[CATEGORY2_PRICE_COLUMN_INDEX]));
             double[] category2MinMaxPrice = ExtractMinMaxPrice(category2);
-            string dominantPrice = Convert.ToString(row[DOMINANT_PRICE_COLUMN_INDEX]);
-            string previousWeekDominantPrice = Convert.ToString(row[PREVIOUS_WEEK_DOMINANT_PRICE_COLUMN_INDEX]);
-            string previousYearDominantPrice = Convert.ToString(row[PREVIOUS_YEAR_DOMINANT_PRICE_COLUMN_INDEX]);
+            string dominantPrice = NormalizePrice(Convert.ToString(row[DOMINANT_PRICE_COLUMN_INDEX]));
+            string previousWeekDominantPrice = NormalizePrice(Convert.ToString(row[PREVIOUS_WEEK_DOMINANT_PRICE_COLUMN_INDEX]));
+            string previousYearDominantPrice = NormalizePrice(Convert.ToString(row[PREVIOUS_YEAR_DOMINANT_PRICE_COLUMN_INDEX]));
 
             ProductPrice productPrice = new ProductPrice(product, productDate, market);
-            if (!string.IsNullOrEmpty(extraCategory) && double.TryParse(extraCategory, out double extraCategoryDouble))
+            if (!string.IsNullOrEmpty(extraCategory) && double.TryParse(extraCategory, NumberStyles.Any, culture, out double extraCategoryDouble))
             {
                 productPrice.ExtraCategory = extraCategoryDouble;
             }
@@ -99,15 +102,15 @@ namespace VeggieMarketDataReader
                 productPrice.Category2MinPrice = category2MinMaxPrice[0];
                 productPrice.Category2MaxPrice = category2MinMaxPrice[1];
             }
-            if (!string.IsNullOrEmpty(dominantPrice) && double.TryParse(dominantPrice, out double dominantPriceDouble))
+            if (!string.IsNullOrEmpty(dominantPrice) && double.TryParse(dominantPrice, NumberStyles.Any, culture, out double dominantPriceDouble))
             {
                 productPrice.DominantPrice = dominantPriceDouble;
             }
-            if (!string.IsNullOrEmpty(previousWeekDominantPrice) && double.TryParse(previousWeekDominantPrice, out double previousWeekDominantPriceDouble))
+            if (!string.IsNullOrEmpty(previousWeekDominantPrice) && double.TryParse(previousWeekDominantPrice, NumberStyles.Any, culture, out double previousWeekDominantPriceDouble))
             {
                 productPrice.PreviousWeekDominantPrice = previousWeekDominantPriceDouble;
             }
-            if (!string.IsNullOrEmpty(previousYearDominantPrice) && double.TryParse(previousYearDominantPrice, out double previousYearDominantPriceDouble))
+            if (!string.IsNullOrEmpty(previousYearDominantPrice) && double.TryParse(previousYearDominantPrice, NumberStyles.Any, culture, out double previousYearDominantPriceDouble))
             {
                 productPrice.PreviousYearDominantPrice = previousYearDominantPriceDouble;
             }

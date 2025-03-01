@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Data;
 using VeggieMarketDataStore.Models;
+using System.Globalization;
 
 namespace VeggieMarketDataReader
 {
@@ -82,21 +83,23 @@ namespace VeggieMarketDataReader
 
         protected override ProductPrice ExtractProductPrice(DataRow row, Product product, long productDate)
         {
-            string extraCategory = Convert.ToString(row[EXTRA_CATEGORY_PRICE_COLUMN_INDEX]);
-            string category1 = Convert.ToString(row[CATEGORY1_PRICE_COLUMN_INDEX]);
+            CultureInfo culture = CultureInfo.InvariantCulture;
+
+            string extraCategory = NormalizePrice(Convert.ToString(row[EXTRA_CATEGORY_PRICE_COLUMN_INDEX]));
+            string category1 = NormalizePrice(Convert.ToString(row[CATEGORY1_PRICE_COLUMN_INDEX]));
             double[] category1MinMaxPrice = ExtractMinMaxPrice(category1);
-            string category2 = Convert.ToString(row[CATEGORY2_PRICE_COLUMN_INDEX]);
+            string category2 = NormalizePrice(Convert.ToString(row[CATEGORY2_PRICE_COLUMN_INDEX]));
             double[] category2MinMaxPrice = ExtractMinMaxPrice(category2);
             string quantityToSupply = Convert.ToString(row[QUANTITY_TO_SUPPLY_COLUMN_INDEX]);
-            string dominantPrice = Convert.ToString(row[DOMINANT_PRICE_COLUMN_INDEX]);
-            string previousWeekDominantPrice = Convert.ToString(row[PREVIOUS_WEEK_DOMINANT_PRICE_COLUMN_INDEX]);
-            string previousYearDominantPrice = Convert.ToString(row[PREVIOUS_YEAR_DOMINANT_PRICE_COLUMN_INDEX]);
-            string previousWeekPriceDifference = Convert.ToString(row[PREVIOUS_WEEK_PRICE_DIFFERENCE_COLUMN_INDEX]);
-            string previousYearPriceDifference = Convert.ToString(row[PREVIOUS_YEAR_PRICE_DIFFERENCE_COLUMN_INDEX]);
-            string soldQuantityPercentage = Convert.ToString(row[SOLID_QUANTITY_PERCENTAGE_COLUMN_INDEX]);
+            string dominantPrice = NormalizePrice(Convert.ToString(row[DOMINANT_PRICE_COLUMN_INDEX]));
+            string previousWeekDominantPrice = NormalizePrice(Convert.ToString(row[PREVIOUS_WEEK_DOMINANT_PRICE_COLUMN_INDEX]));
+            string previousYearDominantPrice = NormalizePrice(Convert.ToString(row[PREVIOUS_YEAR_DOMINANT_PRICE_COLUMN_INDEX]));
+            string previousWeekPriceDifference = NormalizePrice(Convert.ToString(row[PREVIOUS_WEEK_PRICE_DIFFERENCE_COLUMN_INDEX]));
+            string previousYearPriceDifference = NormalizePrice(Convert.ToString(row[PREVIOUS_YEAR_PRICE_DIFFERENCE_COLUMN_INDEX]));
+            string soldQuantityPercentage = NormalizePrice(Convert.ToString(row[SOLID_QUANTITY_PERCENTAGE_COLUMN_INDEX]));
 
             ProductPrice productPrice = new ProductPrice(product, productDate, market);
-            if (!string.IsNullOrEmpty(extraCategory) && double.TryParse(extraCategory, out double extraCategoryDouble))
+            if (!string.IsNullOrEmpty(extraCategory) && double.TryParse(extraCategory, NumberStyles.Any, culture, out double extraCategoryDouble))
             {
                 productPrice.ExtraCategory = extraCategoryDouble;
             }
@@ -110,31 +113,31 @@ namespace VeggieMarketDataReader
                 productPrice.Category2MinPrice = category2MinMaxPrice[0];
                 productPrice.Category2MaxPrice = category2MinMaxPrice[1];
             }
-            if (!string.IsNullOrEmpty(quantityToSupply) && double.TryParse(quantityToSupply, out double quantityToSupplyDouble))
+            if (!string.IsNullOrEmpty(quantityToSupply) && double.TryParse(quantityToSupply, NumberStyles.Any, culture, out double quantityToSupplyDouble))
             {
                 productPrice.QuantityToSupply = quantityToSupplyDouble;
             }
-            if (!string.IsNullOrEmpty(dominantPrice) && double.TryParse(dominantPrice, out double dominantPriceDouble))
+            if (!string.IsNullOrEmpty(dominantPrice) && double.TryParse(dominantPrice, NumberStyles.Any, culture, out double dominantPriceDouble))
             {
                 productPrice.DominantPrice = dominantPriceDouble;
             }
-            if (!string.IsNullOrEmpty(previousWeekDominantPrice) && double.TryParse(previousWeekDominantPrice, out double previousWeekDominantPriceDouble))
+            if (!string.IsNullOrEmpty(previousWeekDominantPrice) && double.TryParse(previousWeekDominantPrice, NumberStyles.Any, culture, out double previousWeekDominantPriceDouble))
             {
                 productPrice.PreviousWeekDominantPrice = previousWeekDominantPriceDouble;
             }
-            if (!string.IsNullOrEmpty(previousYearDominantPrice) && double.TryParse(previousYearDominantPrice, out double previousYearDominantPriceDouble))
+            if (!string.IsNullOrEmpty(previousYearDominantPrice) && double.TryParse(previousYearDominantPrice, NumberStyles.Any, culture, out double previousYearDominantPriceDouble))
             {
                 productPrice.PreviousYearDominantPrice = previousYearDominantPriceDouble;
             }
-            if (!string.IsNullOrEmpty(previousWeekPriceDifference) && double.TryParse(previousWeekPriceDifference, out double previousWeekPriceDifferenceDouble))
+            if (!string.IsNullOrEmpty(previousWeekPriceDifference) && double.TryParse(previousWeekPriceDifference, NumberStyles.Any, culture, out double previousWeekPriceDifferenceDouble))
             {
                 productPrice.PreviousWeekPriceDifference = previousWeekPriceDifferenceDouble;
             }
-            if (!string.IsNullOrEmpty(previousYearPriceDifference) && double.TryParse(previousYearPriceDifference, out double previousYearPriceDifferenceDouble))
+            if (!string.IsNullOrEmpty(previousYearPriceDifference) && double.TryParse(previousYearPriceDifference, NumberStyles.Any, culture, out double previousYearPriceDifferenceDouble))
             {
                 productPrice.PreviousYearPriceDifference = previousYearPriceDifferenceDouble;
             }
-            if (!string.IsNullOrEmpty(soldQuantityPercentage) && double.TryParse(soldQuantityPercentage, out double soldQuantityPercentageDouble))
+            if (!string.IsNullOrEmpty(soldQuantityPercentage) && double.TryParse(soldQuantityPercentage, NumberStyles.Any, culture, out double soldQuantityPercentageDouble))
             {
                 productPrice.SoldQuantityPercentage = soldQuantityPercentageDouble;
             }
