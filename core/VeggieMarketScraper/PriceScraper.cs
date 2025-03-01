@@ -35,10 +35,9 @@ namespace VeggieMarketScraper
         public string[] DownloadPeriod(DateTime startDate, DateTime endDate, string downloadFolder)
         {
             List<string> files = new List<string>();
-            int chunkIndex = 0;
-            int chunkDelay = chunkAdditionalDelayInMs;
-            int totalNumberOfDays = (endDate - startDate).Days + 1;
-            int dayIndex = 1;
+            //int chunkIndex = 0;
+            //int chunkDelay = chunkAdditionalDelayInMs;
+            //int totalNumberOfDays = (endDate - startDate).Days + 1;
 
             foreach (DateTime day in EachDay(startDate, endDate))
             {
@@ -48,19 +47,19 @@ namespace VeggieMarketScraper
                     files.Add(file);
                 }
 
-                Thread.Sleep(requestDelayInMs);
-                chunkIndex++;
-                if (chunkIndex == chunkSize)
-                {
-                    chunkIndex = 0;
-                    if (dayIndex != totalNumberOfDays)
-                    {
-                        Thread.Sleep(chunkDelay);
-                        chunkDelay += chunkAdditionalDelayInMs;
-                    }
-                }
+                //Thread.Sleep(requestDelayInMs);
+                //chunkIndex++;
+                //if (chunkIndex == chunkSize)
+                //{
+                //    chunkIndex = 0;
+                //    if (dayIndex != totalNumberOfDays)
+                //    {
+                //        Thread.Sleep(chunkDelay);
+                //        chunkDelay += chunkAdditionalDelayInMs;
+                //    }
+                //}
 
-                dayIndex++;
+                //dayIndex++;
             }
 
             return files.ToArray();
