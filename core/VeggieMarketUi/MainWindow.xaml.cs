@@ -471,10 +471,11 @@ namespace VeggieMarketUi
                 seriesCollection.Add(lineSeries);
             }
 
+            LineChartTitle.Content = "Chart";
             LineChart.Series = seriesCollection;
             LineChartHorizontalAxis.Labels = labels;
             LineChartHorizontalAxis.LabelFormatter = formatter;
-            LineChart.Visibility = Visibility.Visible;
+            GraphsGrid.Visibility = Visibility.Visible;
         }
 
         private double?[] GetPriceValues(string priceType)

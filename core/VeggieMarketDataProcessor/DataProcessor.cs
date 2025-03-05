@@ -1,28 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using VeggieMarketDataStore;
 using VeggieMarketDataStore.Models;
+using VeggieMarketLogger;
 
 namespace VeggieMarketDataProcessor
 {
     public class DataProcessor
     {
         private DataStorageService dataStorageService;
+        private ILogger logger;
 
         public DataProcessor(DataStorageService dataStorageService) 
         {
             this.dataStorageService = dataStorageService;
+            this.logger = dataStorageService.Logger;
         }
 
         public void ProcessProductPrices(string marketName, DateTime[] days)
         {
+            logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Processing product prices for market " + marketName, LogType.Info);
+
             Market market = dataStorageService.MarketDbService.GetMarket(marketName);
             IEnumerable<Product> products = dataStorageService.ProductDbService.GetProducts();
-            if (market == null || products == null) return;
+            if (market == null || products == null)
+            {
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Aborting processing as no market or no products were found", LogType.Error);
+                return;
+            }
 
             Dictionary<int, List<DateTime>> daysByYear = SplitDaysByYear(days);
-            if (daysByYear.Count() == 0) return;
+            if (daysByYear.Count() == 0)
+            {
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Aborting processing as no dates were found", LogType.Error);
+                return;
+            }
 
             foreach (KeyValuePair<int, List<DateTime>> daysByYearPair in daysByYear)
             {
@@ -30,8 +44,12 @@ namespace VeggieMarketDataProcessor
                 DateTime fromDate = new DateTime(year, 1, 1);
                 DateTime toDate = new DateTime(year, 12, 31);
 
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Processing year " + year, LogType.Info);
+
                 foreach (Product product in products)
                 {
+                    logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Processing product " + product.ProductName, LogType.Info);
+
                     //are there any prices to process? if no, go to the next product
                     IEnumerable<ProductPrice> productPrices = dataStorageService.ProductPriceDbService.GetProductMarketPrices(product.ProductId, market.MarketId, fromDate, toDate);
                     if (productPrices == null || productPrices.Count() == 0) continue;
@@ -59,6 +77,8 @@ namespace VeggieMarketDataProcessor
 
             for (DateTime date = begin; date <= end; date = date.AddDays(1))
             {
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Processing date " + date.ToString(), LogType.Info);
+
                 ProductPrice productPrice = ProductPriceExists(productPrices, date);
                 if (productPrice == null)
                 {

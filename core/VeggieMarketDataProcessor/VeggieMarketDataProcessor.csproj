@@ -51,6 +51,10 @@
       <Project>{A2FAC4A8-8A42-4FEE-8A40-31F7BF7578CE}</Project>
       <Name>VeggieMarketDataStore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VeggieMarketLogger\VeggieMarketLogger.csproj">
+      <Project>{5a0fb624-15b1-44a3-b62c-5ac1885c5113}</Project>
+      <Name>VeggieMarketLogger</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
