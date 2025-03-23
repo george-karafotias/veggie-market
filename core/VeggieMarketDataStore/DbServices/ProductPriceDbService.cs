@@ -38,14 +38,15 @@ namespace VeggieMarketDataStore.DbServices
             return productPriceDbProcessor.GetProductMarketPrices(PRODUCT_PRICES_TABLE, productId, marketId, fromDate, toDate);
         }
 
-        public bool ProductHasPrice(int productId, long date)
+        public bool ProductHasPrice(int productId, int marketId, long date)
         {
             bool retVal = false;
 
-            string query = "SELECT * FROM ProductPrices WHERE Product = @productId AND Date = @date";
+            string query = "SELECT * FROM ProductPrices WHERE Product = @productId AND Market = @marketId AND Date = @date";
             Dictionary<string, object> parameters = new Dictionary<string, object>
             {
                 { "@productId", productId },
+                { "@marketId", marketId },
                 { "@date", date }
             };
             DbConnection connection = dbService.OpenConnection();

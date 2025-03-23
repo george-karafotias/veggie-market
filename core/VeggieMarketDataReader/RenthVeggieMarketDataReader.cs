@@ -71,7 +71,7 @@ namespace VeggieMarketDataReader
 
         protected override string ExtractProductName(DataRow row)
         {
-            return Convert.ToString(row[PRODUCT_NAME_COLUMN_INDEX]);
+            return Convert.ToString(row[PRODUCT_NAME_COLUMN_INDEX]).Trim();
         }
 
         protected override ProductPrice ExtractProductPrice(DataRow row, Product product, long productDate)

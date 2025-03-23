@@ -26,8 +26,14 @@ namespace VeggieMarketDataReader
 
         public override DateTime? ReadSingleDay(string file)
         {
+            logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "reading " + file, LogType.Info);
+
             DataTable dataTable = ExcelDataReader.ReadFile(file);
-            if (dataTable == null || dataTable.Rows == null) return null;
+            if (dataTable == null || dataTable.Rows == null)
+            {
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "no data found for " + file, LogType.Error);
+                return null;
+            };
 
             int rowNumber = 1;
             ProductType currentProductType = null;
@@ -73,6 +79,12 @@ namespace VeggieMarketDataReader
         protected void ParseProduct(DataRow row, ProductType currentProductType, long currentProductDate)
         {
             string productName = ExtractProductName(row);
+            if (string.IsNullOrEmpty(productName)) 
+            {
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "empty or null product name, stop parsing product", LogType.Error);
+                return;
+            }
+
             string normalizedProductName = productNormalization.NormalizeProductName(productName);
             if (normalizedProductName != productName)
             {
@@ -95,7 +107,7 @@ namespace VeggieMarketDataReader
             }
             else
             {
-                productPriceIsAlreadyStored = dataStorageService.ProductPriceDbService.ProductHasPrice(product.ProductId, currentProductDate);
+                productPriceIsAlreadyStored = dataStorageService.ProductPriceDbService.ProductHasPrice(product.ProductId, market.MarketId, currentProductDate);
                 if (!productPriceIsAlreadyStored)
                 {
                     productPrice = ExtractProductPrice(row, product, currentProductDate);

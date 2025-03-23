@@ -14,6 +14,6 @@ namespace VeggieMarketDataStore.DbInterfaces
 
         IEnumerable<ProductPrice> GetProductMarketPrices(int productId, int marketId, DateTime? fromDate, DateTime? toDate);
 
-        bool ProductHasPrice(int productId, long date);
+        bool ProductHasPrice(int productId, int marketId, long date);
     }
 }

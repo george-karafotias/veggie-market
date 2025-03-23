@@ -159,22 +159,10 @@
                     </Grid>
 
                     <GridSplitter Grid.Column="1" Width="5" Margin="50,0,50,0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="LightGreen" />
-                    
+
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <Label>Prices:</Label>
                         <ListBox x:Name="PricesListBox" SelectionMode="Multiple" Width="300" Height="160">
-                            <ListBoxItem>Category 1 Min Price</ListBoxItem>
-                            <ListBoxItem>Category 1 Max Price</ListBoxItem>
-                            <ListBoxItem>Category 2 Min Price</ListBoxItem>
-                            <ListBoxItem>Category 2 Max Price</ListBoxItem>
-                            <ListBoxItem>Dominant Price</ListBoxItem>
-                            <ListBoxItem>Previous Week Dominant Price</ListBoxItem>
-                            <ListBoxItem>Previous Year Dominant Price</ListBoxItem>
-                            <ListBoxItem>Extra Category</ListBoxItem>
-                            <ListBoxItem>Previous Week Price Difference</ListBoxItem>
-                            <ListBoxItem>Previous Year Price Difference</ListBoxItem>
-                            <ListBoxItem>Quantity to Supply</ListBoxItem>
-                            <ListBoxItem>Sold Quantity Percentage</ListBoxItem>
                         </ListBox>
                     </StackPanel>
 
@@ -186,8 +174,6 @@
                         <Button x:Name="ExportPricesButton" Click="ExportPricesButton_Click" Style="{StaticResource GoButton}" Visibility="Collapsed">Export</Button>
                     </StackPanel>
                 </Grid>
-
-
 
                 <Grid x:Name="GraphsGrid" Visibility="Collapsed" Margin="0,50,0,0" Width="640" HorizontalAlignment="Left" VerticalAlignment="Top">
                     <StackPanel Orientation="Vertical">
@@ -202,6 +188,10 @@
                         </lvc:CartesianChart>
                     </StackPanel>
                 </Grid>
+                <StackPanel Orientation="Vertical" Margin="0,20,0,20">
+                    <TextBox TextWrapping="Wrap" Height="450" IsReadOnly="True" VerticalScrollBarVisibility="Auto"  AcceptsReturn="True" Name="DataAnalysisLogTextBox"/>
+                </StackPanel>
+                
             </StackPanel>
         </TabItem>
     </TabControl>

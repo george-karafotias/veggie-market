@@ -16,6 +16,8 @@ using VeggieMarketLogger;
 using VeggieMarketScraper;
 using VeggieMarketUi.Models;
 using System.Linq;
+using VeggieDataExporter;
+using System.Collections;
 
 namespace VeggieMarketUi
 {
@@ -29,6 +31,7 @@ namespace VeggieMarketUi
         private Dictionary<string, PriceScraper> marketPriceScraperMap;
         private TextBoxLogger importDataTextBoxLogger;
         private TextBoxLogger downloadDataTextBoxLogger;
+        private TextBoxLogger dataAnalysisTextBoxLogger;
         private PriceRetrievalParameters priceRetrievalParameters;
         private IEnumerable<ProductPrice> retrievedPrices;
 
@@ -38,6 +41,7 @@ namespace VeggieMarketUi
 
             importDataTextBoxLogger = new TextBoxLogger(LogTextBox);
             downloadDataTextBoxLogger = new TextBoxLogger(DownloadLogTextBox);
+            dataAnalysisTextBoxLogger = new TextBoxLogger(DataAnalysisLogTextBox);
             InitializeData();
         }
 
@@ -55,7 +59,13 @@ namespace VeggieMarketUi
             DownloadDataMarketsComboBox.ItemsSource = marketNames;
             DownloadDataMarketsComboBox.SelectedIndex = 0;
 
-            IEnumerable<Product> products = dataStorageService.ProductDbService.GetProducts();
+            List<string> priceTypes = ProductPrice.GetPriceTypes().Keys.ToList();
+            foreach (string priceType in priceTypes)
+            {
+                PricesListBox.Items.Add(priceType);
+            }
+
+            IEnumerable <Product> products = dataStorageService.ProductDbService.GetProducts();
             PopulateMarketsComboBox(DataAnalysisMarketsComboBox, markets);
             PopulateProductsComboBox(DataAnalysisProductsComboBox, products);
         }
@@ -448,11 +458,7 @@ namespace VeggieMarketUi
                 return;
             }
 
-            List<string> selectedPriceTypes = new List<string>();
-            foreach (ListBoxItem selectedItem in PricesListBox.SelectedItems)
-            {
-                selectedPriceTypes.Add(selectedItem.Content.ToString());
-            }
+            List<string> selectedPriceTypes = GetSelectedPriceTypes();
 
             List<string> labels = new List<string>();
             for (DateTime date = priceRetrievalParameters.FromDate.Value; date <= priceRetrievalParameters.ToDate.Value; date = date.AddDays(1))
@@ -476,6 +482,16 @@ namespace VeggieMarketUi
             LineChartHorizontalAxis.Labels = labels;
             LineChartHorizontalAxis.LabelFormatter = formatter;
             GraphsGrid.Visibility = Visibility.Visible;
+        }
+
+        private List<string> GetSelectedPriceTypes()
+        {
+            List<string> selectedPriceTypes = new List<string>();
+            foreach (string selectedItem in PricesListBox.SelectedItems)
+            {
+                selectedPriceTypes.Add(selectedItem);
+            }
+            return selectedPriceTypes;
         }
 
         private double?[] GetPriceValues(string priceType)
@@ -513,7 +529,8 @@ namespace VeggieMarketUi
                 return;
             }
 
-
+            JsonProductPriceExporter jsonProductPriceExporter = new JsonProductPriceExporter(dataAnalysisTextBoxLogger);
+            jsonProductPriceExporter.ExportProductPrices(retrievedPrices, GetSelectedPriceTypes());
         }
     }
 }

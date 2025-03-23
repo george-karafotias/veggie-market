@@ -66,7 +66,7 @@ namespace VeggieMarketDataStore.DbServices
         {
             List<Product> products = new List<Product>();
 
-            string query = "SELECT * FROM Products INNER JOIN ProductTypes ON Products.ProductType = ProductTypes.ProductTypeId";
+            string query = "SELECT * FROM Products INNER JOIN ProductTypes ON Products.ProductType = ProductTypes.ProductTypeId ORDER BY Products.ProductName";
             DbConnection connection = dbService.OpenConnection();
             DbDataReader reader = dbService.Select(connection, query, new Dictionary<string, object>());
             if (reader != null && reader.HasRows)
