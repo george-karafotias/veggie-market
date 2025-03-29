@@ -490,6 +490,23 @@ namespace VeggieMarketUi
             return values;
         }
 
+        private Product GetSelectedProduct()
+        {
+            IEnumerable<Product> products = DataAnalysisProductsComboBox.ItemsSource as IEnumerable<Product>;
+            if (products == null || products.Count() == 0) return null;
+            if (DataAnalysisProductsComboBox.SelectedValue == null) return null;
+
+            long? selectedProductId = Convert.ToInt64(DataAnalysisProductsComboBox.SelectedValue);
+            if (!selectedProductId.HasValue) return null;
+
+            foreach (Product product in products)
+            {
+                if (product.ProductId == selectedProductId.Value) return product;
+            }
+
+            return null;
+        }
+
         private void ExportPricesButton_Click(object sender, RoutedEventArgs e)
         {
             if (retrievedPrices == null)
@@ -498,8 +515,15 @@ namespace VeggieMarketUi
                 return;
             }
 
+            Product selectedProduct = GetSelectedProduct();
+            if (selectedProduct == null)
+            {
+                ShowErrorMessage("Please select a product.");
+                return;
+            }
+
             JsonProductPriceExporter jsonProductPriceExporter = new JsonProductPriceExporter(dataAnalysisTextBoxLogger);
-            jsonProductPriceExporter.ExportProductPrices(retrievedPrices, GetSelectedPriceTypes());
+            jsonProductPriceExporter.ExportProductPrices(selectedProduct.ProductName, retrievedPrices, GetSelectedPriceTypes());
         }
 
         private void GetAvailableDataButton_Click(object sender, RoutedEventArgs e)

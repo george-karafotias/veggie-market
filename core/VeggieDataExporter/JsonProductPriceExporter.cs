@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -18,7 +17,7 @@ namespace VeggieDataExporter
             this.logger = logger;
         }
 
-        public void ExportProductPrices(IEnumerable<ProductPrice> productPrices, IEnumerable<string> priceTypes)
+        public void ExportProductPrices(string fileName, IEnumerable<ProductPrice> productPrices, IEnumerable<string> priceTypes)
         {
             if (productPrices == null)
             {
@@ -73,7 +72,7 @@ namespace VeggieDataExporter
             
             output.Append("}");
             string outputJson = output.ToString();
-            System.IO.File.WriteAllText("aggouria_thess.json", BeautifyJson(outputJson));
+            System.IO.File.WriteAllText(fileName + ".json", BeautifyJson(outputJson));
         }
 
         private string BeautifyJson(string json)
