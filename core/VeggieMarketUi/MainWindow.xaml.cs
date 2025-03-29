@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Linq;
 using LiveCharts.Wpf;
 using LiveCharts;
 using Microsoft.Win32;
@@ -15,9 +16,7 @@ using VeggieMarketDataStore.Models;
 using VeggieMarketLogger;
 using VeggieMarketScraper;
 using VeggieMarketUi.Models;
-using System.Linq;
 using VeggieDataExporter;
-using System.Collections;
 
 namespace VeggieMarketUi
 {
@@ -226,36 +225,6 @@ namespace VeggieMarketUi
             }
         }
 
-        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.Source is TabControl)
-            {
-                TabItem selectedTab = (sender as TabControl).SelectedItem as TabItem;
-                if (selectedTab.Header.ToString() == "Available Data")
-                {
-                    PopulateAvailablePrices();
-                }
-            }
-        }
-
-        private void PopulateAvailablePrices()
-        {
-            MarketAvailableData[] availablePrices = dataStorageService.MetadataDbService.GetAvailablePrices();
-            if (availablePrices == null || availablePrices.Length == 0) return;
-
-            ObservableCollection<PricePeriod> pricePeriods = new ObservableCollection<PricePeriod>();
-            foreach (MarketAvailableData marketPrices in availablePrices)
-            {
-                foreach (DatePeriod datePeriod in marketPrices.DatePeriods)
-                {
-                    PricePeriod pricePeriod = new PricePeriod(marketPrices.Market, datePeriod);
-                    pricePeriods.Add(pricePeriod);
-                }
-            }
-
-            AvailablePricesDataGrid.ItemsSource = pricePeriods;
-        }
-
         private void DownloadDataButton_Click(object sender, RoutedEventArgs e)
         {
             DateTime? fromDate = FromDatePicker.SelectedDate;
@@ -452,13 +421,11 @@ namespace VeggieMarketUi
 
         private void PlotButton_Click(object sender, RoutedEventArgs e)
         {
-            if (PricesListBox.SelectedItems == null)
+            if (PricesListBox.SelectedItems == null || PricesListBox.SelectedItems.Count == 0)
             {
                 ShowErrorMessage("Please select at least one price indicator.");
                 return;
             }
-
-            List<string> selectedPriceTypes = GetSelectedPriceTypes();
 
             List<string> labels = new List<string>();
             for (DateTime date = priceRetrievalParameters.FromDate.Value; date <= priceRetrievalParameters.ToDate.Value; date = date.AddDays(1))
@@ -468,9 +435,11 @@ namespace VeggieMarketUi
             Func<double, string> formatter = value => new DateTime((long)value).ToString("dd/MM");
 
             SeriesCollection seriesCollection = new SeriesCollection();
+            Dictionary<string, string> priceTypeDictionary = ProductPrice.GetPriceTypes();
+            List<string> selectedPriceTypes = GetSelectedPriceTypes();
             foreach (string priceType in selectedPriceTypes)
             {
-                double?[] priceValues = GetPriceValues(priceType);
+                double?[] priceValues = GetPriceValues(priceTypeDictionary[priceType]);
                 LineSeries lineSeries = new LineSeries();
                 lineSeries.Title = priceType;
                 lineSeries.Values = PrepareDataForChart(priceValues);
@@ -500,11 +469,7 @@ namespace VeggieMarketUi
             int index = 0;
             foreach (ProductPrice productPrice in retrievedPrices)
             {
-                if (priceType == "Category 1 Min Price")
-                {
-                    priceValues[index] = productPrice.Category1MinPrice;
-                }
-
+                priceValues[index] = productPrice.GetPriceType(priceType);
                 index++;
             }
 
@@ -516,6 +481,10 @@ namespace VeggieMarketUi
             ChartValues<double> values = new ChartValues<double>();
             foreach (double? value in data)
             {
+                if (!value.HasValue)
+                {
+                    return new ChartValues<double>();
+                }
                 values.Add(value.Value);
             }
             return values;
@@ -531,6 +500,24 @@ namespace VeggieMarketUi
 
             JsonProductPriceExporter jsonProductPriceExporter = new JsonProductPriceExporter(dataAnalysisTextBoxLogger);
             jsonProductPriceExporter.ExportProductPrices(retrievedPrices, GetSelectedPriceTypes());
+        }
+
+        private void GetAvailableDataButton_Click(object sender, RoutedEventArgs e)
+        {
+            MarketAvailableData[] availablePrices = dataStorageService.MetadataDbService.GetAvailablePrices();
+            if (availablePrices == null || availablePrices.Length == 0) return;
+
+            ObservableCollection<PricePeriod> pricePeriods = new ObservableCollection<PricePeriod>();
+            foreach (MarketAvailableData marketPrices in availablePrices)
+            {
+                foreach (DatePeriod datePeriod in marketPrices.DatePeriods)
+                {
+                    PricePeriod pricePeriod = new PricePeriod(marketPrices.Market, datePeriod);
+                    pricePeriods.Add(pricePeriod);
+                }
+            }
+
+            AvailablePricesDataGrid.ItemsSource = pricePeriods;
         }
     }
 }

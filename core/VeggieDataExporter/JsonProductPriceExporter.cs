@@ -26,7 +26,6 @@ namespace VeggieDataExporter
                 return;
             }
 
-            logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Organizing product prices by year", LogType.Info);
             Dictionary<int, List<ProductPrice>> productPricesPerYear = ProductPriceGrouping.GroupByYear(productPrices);
 
             List<string> selectedPriceTypes = GetSelectedPriceTypes(priceTypes);
