@@ -23,6 +23,13 @@
         <Setter Property="Background" Value="LightGreen"></Setter>
         <Setter Property="FontWeight" Value="SemiBold"></Setter>
     </Style>
+    <Style x:Key="AddToListBoxButton" TargetType="Button">
+        <Setter Property="Width" Value="50"></Setter>
+        <Setter Property="Margin" Value="0,0,0,10"></Setter>
+    </Style>
+    <Style x:Key="RemoveFromListBoxButton" TargetType="Button">
+        <Setter Property="Width" Value="50"></Setter>
+    </Style>
     <Style TargetType="TextBox" BasedOn="{StaticResource BaseStyle}">
         <Setter Property="Padding" Value="5"></Setter>
     </Style>
@@ -40,5 +47,15 @@
         <Setter Property="Margin" Value="0,0,0,20"></Setter>
         <Setter Property="HorizontalAlignment" Value="Center"></Setter>
         <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+    </Style>
+    <Style TargetType="ListBox" x:Key="MultiSelectionListBox">
+        <Setter Property="Width" Value="300"></Setter>
+        <Setter Property="SelectionMode" Value="Multiple"></Setter>
+    </Style>
+    <Style TargetType="ListBox" x:Key="ProductsListBox" BasedOn="{StaticResource MultiSelectionListBox}">
+        <Setter Property="Height" Value="200"></Setter>
+    </Style>
+    <Style TargetType="ListBox" x:Key="PricesListBox" BasedOn="{StaticResource MultiSelectionListBox}">
+        <Setter Property="Height" Value="200"></Setter>
     </Style>
 </ResourceDictionary>

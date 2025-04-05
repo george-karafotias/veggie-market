@@ -58,39 +58,29 @@ namespace VeggieMarketUi
             DownloadDataMarketsComboBox.ItemsSource = marketNames;
             DownloadDataMarketsComboBox.SelectedIndex = 0;
 
-            PopulateMarketsComboBox(AvailableMarketsListBox, markets);
-            InitMarketsComboBox(SelectedMarketsListBox);
-
-            IEnumerable<Product> products = dataStorageService.ProductDbService.GetProducts();
-            PopulateProductsComboBox(AvailableProductsListBox, products);
-            InitProductsComboBox(SelectedProductsListBox);
-
             List<string> priceTypes = ProductPrice.GetPriceTypes().Keys.ToList();
-            AvailablePricesListBox.ItemsSource = new ObservableCollection<object>(priceTypes);
+            foreach (string priceType in priceTypes)
+            {
+                PricesListBox.Items.Add(priceType);
+            }
+
+            IEnumerable <Product> products = dataStorageService.ProductDbService.GetProducts();
+            PopulateMarketsComboBox(DataAnalysisMarketsComboBox, markets);
+            PopulateProductsComboBox(DataAnalysisProductsComboBox, products);
         }
 
-        private void InitMarketsComboBox(ListBox marketsComboBox)
+        private void PopulateProductsComboBox(ComboBox productsComboBox, IEnumerable<Product> products)
         {
-            marketsComboBox.DisplayMemberPath = "MarketName";
-            marketsComboBox.SelectedValuePath = "MarketId";
-        }
-
-        private void InitProductsComboBox(ListBox productsComboBox)
-        {
+            productsComboBox.ItemsSource = products;
             productsComboBox.DisplayMemberPath = "ProductName";
             productsComboBox.SelectedValuePath = "ProductId";
         }
 
-        private void PopulateMarketsComboBox(ListBox marketsComboBox, Market[] markets)
+        private void PopulateMarketsComboBox(ComboBox marketsComboBox, Market[] markets)
         {
-            InitMarketsComboBox(marketsComboBox);
-            marketsComboBox.ItemsSource = new ObservableCollection<object>(markets);
-        }
-
-        private void PopulateProductsComboBox(ListBox productsComboBox, IEnumerable<Product> products)
-        {
-            InitProductsComboBox(productsComboBox);
-            productsComboBox.ItemsSource = new ObservableCollection<object>(products);
+            marketsComboBox.ItemsSource = markets;
+            marketsComboBox.DisplayMemberPath = "MarketName";
+            marketsComboBox.SelectedValuePath = "MarketId";
         }
 
         private void PopulateMarketReaderMap(List<string> marketNames)
@@ -383,15 +373,13 @@ namespace VeggieMarketUi
 
         private void RetrievePricesButton_Click(object sender, RoutedEventArgs e)
         {
-            Market selectedMarket = GetSelectedMarket();
-            if (selectedMarket == null)
+            if (DataAnalysisMarketsComboBox.SelectedValue == null)
             {
                 ShowErrorMessage("Please select the market.");
                 return;
             }
 
-            Product selectedProduct = GetSelectedProduct();
-            if (selectedProduct == null)
+            if (DataAnalysisProductsComboBox.SelectedValue == null)
             {
                 ShowErrorMessage("Please select a product.");
                 return;
@@ -411,9 +399,11 @@ namespace VeggieMarketUi
                 return;
             }
 
+            int productId = Convert.ToInt32(DataAnalysisProductsComboBox.SelectedValue);
+            int marketId = Convert.ToInt32(DataAnalysisMarketsComboBox.SelectedValue);
             priceRetrievalParameters = new PriceRetrievalParameters();
-            priceRetrievalParameters.ProductId = selectedProduct.ProductId;
-            priceRetrievalParameters.MarketId = selectedMarket.MarketId;
+            priceRetrievalParameters.ProductId = productId;
+            priceRetrievalParameters.MarketId = marketId;
             priceRetrievalParameters.FromDate = fromDate.Value;
             priceRetrievalParameters.ToDate = toDate.Value;
 
@@ -431,8 +421,7 @@ namespace VeggieMarketUi
 
         private void PlotButton_Click(object sender, RoutedEventArgs e)
         {
-            List<string> selectedPriceTypes = GetSelectedPriceTypes();
-            if (selectedPriceTypes == null || selectedPriceTypes.Count == 0)
+            if (PricesListBox.SelectedItems == null || PricesListBox.SelectedItems.Count == 0)
             {
                 ShowErrorMessage("Please select at least one price indicator.");
                 return;
@@ -447,6 +436,7 @@ namespace VeggieMarketUi
 
             SeriesCollection seriesCollection = new SeriesCollection();
             Dictionary<string, string> priceTypeDictionary = ProductPrice.GetPriceTypes();
+            List<string> selectedPriceTypes = GetSelectedPriceTypes();
             foreach (string priceType in selectedPriceTypes)
             {
                 double?[] priceValues = GetPriceValues(priceTypeDictionary[priceType]);
@@ -465,12 +455,10 @@ namespace VeggieMarketUi
 
         private List<string> GetSelectedPriceTypes()
         {
-            ObservableCollection<object> selectedPriceTypesCollection = SelectedPricesListBox.ItemsSource as ObservableCollection<object>;
-            if (selectedPriceTypesCollection == null || selectedPriceTypesCollection.Count() == 0) return null;
             List<string> selectedPriceTypes = new List<string>();
-            foreach (object price in selectedPriceTypesCollection)
+            foreach (string selectedItem in PricesListBox.SelectedItems)
             {
-                selectedPriceTypes.Add(price.ToString());
+                selectedPriceTypes.Add(selectedItem);
             }
             return selectedPriceTypes;
         }
@@ -502,18 +490,21 @@ namespace VeggieMarketUi
             return values;
         }
 
-        private Market GetSelectedMarket()
-        {
-            ObservableCollection<object> markets = SelectedMarketsListBox.ItemsSource as ObservableCollection<object>;
-            if (markets == null || markets.Count() == 0) return null;
-            return markets.First() as Market;
-        }
-
         private Product GetSelectedProduct()
         {
-            ObservableCollection<object> products = SelectedProductsListBox.ItemsSource as ObservableCollection<object>;
+            IEnumerable<Product> products = DataAnalysisProductsComboBox.ItemsSource as IEnumerable<Product>;
             if (products == null || products.Count() == 0) return null;
-            return products.First() as Product;
+            if (DataAnalysisProductsComboBox.SelectedValue == null) return null;
+
+            long? selectedProductId = Convert.ToInt64(DataAnalysisProductsComboBox.SelectedValue);
+            if (!selectedProductId.HasValue) return null;
+
+            foreach (Product product in products)
+            {
+                if (product.ProductId == selectedProductId.Value) return product;
+            }
+
+            return null;
         }
 
         private void ExportPricesButton_Click(object sender, RoutedEventArgs e)
@@ -551,67 +542,6 @@ namespace VeggieMarketUi
             }
 
             AvailablePricesDataGrid.ItemsSource = pricePeriods;
-        }
-
-        private void AddToSelectedMarketsButton_Click(object sender, RoutedEventArgs e)
-        {
-            MoveSelectedItems(AvailableMarketsListBox, SelectedMarketsListBox);
-        }
-
-        private void RemoveFromSelectedMarketsButton_Click(object sender, RoutedEventArgs e)
-        {
-            MoveSelectedItems(SelectedMarketsListBox, AvailableMarketsListBox);
-        }
-
-        private void AddToSelectedProductsButton_Click(object sender, RoutedEventArgs e)
-        {
-            MoveSelectedItems(AvailableProductsListBox, SelectedProductsListBox);
-        }
-
-        private void RemoveFromSelectedProductsButton_Click(object sender, RoutedEventArgs e)
-        {
-            MoveSelectedItems(SelectedProductsListBox, AvailableProductsListBox);
-        }
-
-        private void AddToSelectedPricesButton_Click(object sender, RoutedEventArgs e)
-        {
-            MoveSelectedItems(AvailablePricesListBox, SelectedPricesListBox);
-        }
-
-        private void RemoveFromSelectedPricesButton_Click(object sender, RoutedEventArgs e)
-        {
-            MoveSelectedItems(SelectedPricesListBox, AvailablePricesListBox);
-        }
-
-        private void MoveSelectedItems(ListBox source, ListBox destination)
-        {
-            IEnumerable<object> selectedItems = source.SelectedItems as IEnumerable<object>;
-            if (selectedItems == null) return;
-            ObservableCollection<object> itemsSource = source.ItemsSource as ObservableCollection<object>;
-            ObservableCollection<object> itemsDestination = destination.ItemsSource as ObservableCollection<object>;
-            if (itemsDestination == null)
-            {
-                itemsDestination = new ObservableCollection<object>();
-            }
-
-            List<int> itemsToRemove = new List<int>();
-            foreach (var selectedItem in selectedItems)
-            {
-                itemsDestination.Add(selectedItem);
-                for (int i = 0; i < itemsSource.Count(); i++)
-                {
-                    if (itemsSource[i] == selectedItem)
-                    {
-                        itemsToRemove.Add(i);
-                    }
-                }
-            }
-            destination.ItemsSource = itemsDestination;
-
-            foreach (int itemToRemove in itemsToRemove)
-            {
-                itemsSource.RemoveAt(itemToRemove);
-            }
         }
     }
 }
