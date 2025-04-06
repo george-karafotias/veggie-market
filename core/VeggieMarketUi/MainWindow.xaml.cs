@@ -467,6 +467,7 @@ namespace VeggieMarketUi
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
                     LineSeries lineSeries = new LineSeries();
+                    lineSeries.PointGeometry = null;
                     lineSeries.Title = priceType;
                     lineSeries.Values = PrepareDataForChart(priceValues);
                     seriesCollection.Add(lineSeries);
