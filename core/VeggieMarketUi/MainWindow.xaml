@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:local="clr-namespace:VeggieMarketUi"
         mc:Ignorable="d"
         Title="Veggie Prices" Height="768" Width="1024" WindowState="Maximized">
@@ -118,124 +119,134 @@
         </TabItem>
 
         <TabItem Header="Data Analysis">
-            <StackPanel Orientation="Vertical">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto">
-                        </ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
+            <StackPanel x:Name="DataAnalysisContainer">
+                <StackPanel x:Name="DataAnalysisPleaseWaitPanel" HorizontalAlignment="Center" Orientation="Vertical" Visibility="Collapsed">
+                    <Label HorizontalAlignment="Center" FontSize="16" Margin="0,0,0,20">Please wait...</Label>
+                    <Grid>
+                        <fa:ImageAwesome Icon="Spinner" Spin="True" SpinDuration="4" Width="100" Height="100" />
+                    </Grid>
+                </StackPanel>
 
-                    <StackPanel Orientation="Vertical">
-                        <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0" Grid.Row="0" Margin="0,0,0,10">
-                            <Grid.RowDefinitions>
-                                <RowDefinition></RowDefinition>
-                                <RowDefinition></RowDefinition>
-                                <RowDefinition></RowDefinition>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            
-                            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-                                <StackPanel Orientation="Vertical">
-                                    <Label>Available Markets</Label>
-                                    <ListBox x:Name="AvailableMarketsListBox" Height="60" Style="{StaticResource MultiSelectionListBox}"></ListBox>
+                <StackPanel x:Name="DataAnalysiInputPanel" Orientation="Vertical">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto">
+                            </ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Orientation="Vertical">
+                            <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0" Grid.Row="0" Margin="0,0,0,10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                                    <StackPanel Orientation="Vertical">
+                                        <Label>Available Markets</Label>
+                                        <ListBox x:Name="AvailableMarketsListBox" Height="60" Style="{StaticResource MultiSelectionListBox}"></ListBox>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
+                                        <Button Content=">" x:Name="AddToSelectedMarketsButton" Style="{StaticResource AddToListBoxButton}" Click="AddToSelectedMarketsButton_Click"></Button>
+                                        <Button Content="&#x3C;"  x:Name="RemoveFromSelectedMarketsButton" Style="{StaticResource RemoveFromListBoxButton}" Click="RemoveFromSelectedMarketsButton_Click"></Button>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical">
+                                        <Label>Selected Markets</Label>
+                                        <ListBox x:Name="SelectedMarketsListBox" Height="60" Style="{StaticResource MultiSelectionListBox}"></ListBox>
+                                    </StackPanel>
                                 </StackPanel>
-                                <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                                    <Button Content=">" x:Name="AddToSelectedMarketsButton" Style="{StaticResource AddToListBoxButton}" Click="AddToSelectedMarketsButton_Click"></Button>
-                                    <Button Content="&#x3C;"  x:Name="RemoveFromSelectedMarketsButton" Style="{StaticResource RemoveFromListBoxButton}" Click="RemoveFromSelectedMarketsButton_Click"></Button>
+                                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
+                                    <StackPanel Orientation="Vertical">
+                                        <Label>Available Products</Label>
+                                        <ListBox x:Name="AvailableProductsListBox" Style="{StaticResource ProductsListBox}"></ListBox>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
+                                        <Button Content=">" x:Name="AddToSelectedProductsButton" Style="{StaticResource AddToListBoxButton}" Click="AddToSelectedProductsButton_Click"></Button>
+                                        <Button Content="&#x3C;"  x:Name="RemoveFromSelectedProductsButton" Style="{StaticResource RemoveFromListBoxButton}" Click="RemoveFromSelectedProductsButton_Click"></Button>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical">
+                                        <Label>Selected Products</Label>
+                                        <ListBox x:Name="SelectedProductsListBox"  Style="{StaticResource ProductsListBox}"></ListBox>
+                                    </StackPanel>
                                 </StackPanel>
-                                <StackPanel Orientation="Vertical">
-                                    <Label>Selected Markets</Label>
-                                    <ListBox x:Name="SelectedMarketsListBox" Height="60" Style="{StaticResource MultiSelectionListBox}"></ListBox>
+
+                            </Grid>
+
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                    <StackPanel Orientation="Vertical">
+                                        <Label>Available Prices</Label>
+                                        <ListBox x:Name="AvailablePricesListBox" Style="{StaticResource PricesListBox}"></ListBox>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
+                                        <Button Content=">" x:Name="AddToSelectedPricesButton" Style="{StaticResource AddToListBoxButton}" Click="AddToSelectedPricesButton_Click"></Button>
+                                        <Button Content="&#x3C;"  x:Name="RemoveFromSelectedPricesButton" Style="{StaticResource RemoveFromListBoxButton}" Click="RemoveFromSelectedPricesButton_Click"></Button>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical">
+                                        <Label>Selected Prices</Label>
+                                        <ListBox x:Name="SelectedPricesListBox" Style="{StaticResource PricesListBox}"></ListBox>
+                                    </StackPanel>
                                 </StackPanel>
+
+                                <Label Grid.Row="1" Grid.Column="0" Margin="0,10,0,0">From Date:</Label>
+                                <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Margin="0,10,0,0">
+                                    <DatePicker x:Name="DataAnalysisFromDatePicker"/>
+                                    <TextBlock/>
+                                </StackPanel>
+
+                                <Label Grid.Row="2" Grid.Column="0">To Date:</Label>
+                                <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1">
+                                    <DatePicker x:Name="DataAnalysisToDatePicker"/>
+                                    <TextBlock/>
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,30,0,0">
+                                <Button x:Name="RetrievePricesButton" Style="{StaticResource GoButton}" Margin="0,0,0,20" Click="RetrievePricesButton_Click">Retrieve Prices</Button>
+                                <Button x:Name="PlotButton" Click="PlotButton_Click" Style="{StaticResource GoButton}" Margin="0,0,0,20" Visibility="Collapsed">Plot</Button>
+                                <Button x:Name="ExportPricesButton" Click="ExportPricesButton_Click" Style="{StaticResource GoButton}" Visibility="Collapsed">Export</Button>
                             </StackPanel>
-                            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
-                                <StackPanel Orientation="Vertical">
-                                    <Label>Available Products</Label>
-                                    <ListBox x:Name="AvailableProductsListBox" Style="{StaticResource ProductsListBox}"></ListBox>
-                                </StackPanel>
-                                <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                                    <Button Content=">" x:Name="AddToSelectedProductsButton" Style="{StaticResource AddToListBoxButton}" Click="AddToSelectedProductsButton_Click"></Button>
-                                    <Button Content="&#x3C;"  x:Name="RemoveFromSelectedProductsButton" Style="{StaticResource RemoveFromListBoxButton}" Click="RemoveFromSelectedProductsButton_Click"></Button>
-                                </StackPanel>
-                                <StackPanel Orientation="Vertical">
-                                    <Label>Selected Products</Label>
-                                    <ListBox x:Name="SelectedProductsListBox"  Style="{StaticResource ProductsListBox}"></ListBox>
-                                </StackPanel>
-                            </StackPanel>
-
-                        </Grid>
-
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition></RowDefinition>
-                                <RowDefinition></RowDefinition>
-                                <RowDefinition></RowDefinition>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-                                <StackPanel Orientation="Vertical">
-                                    <Label>Available Prices</Label>
-                                    <ListBox x:Name="AvailablePricesListBox" Style="{StaticResource PricesListBox}"></ListBox>
-                                </StackPanel>
-                                <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                                    <Button Content=">" x:Name="AddToSelectedPricesButton" Style="{StaticResource AddToListBoxButton}" Click="AddToSelectedPricesButton_Click"></Button>
-                                    <Button Content="&#x3C;"  x:Name="RemoveFromSelectedPricesButton" Style="{StaticResource RemoveFromListBoxButton}" Click="RemoveFromSelectedPricesButton_Click"></Button>
-                                </StackPanel>
-                                <StackPanel Orientation="Vertical">
-                                    <Label>Selected Prices</Label>
-                                    <ListBox x:Name="SelectedPricesListBox" Style="{StaticResource PricesListBox}"></ListBox>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <Label Grid.Row="1" Grid.Column="0" Margin="0,10,0,0">From Date:</Label>
-                            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Margin="0,10,0,0">
-                                <DatePicker x:Name="DataAnalysisFromDatePicker"/>
-                                <TextBlock/>
-                            </StackPanel>
-
-                            <Label Grid.Row="2" Grid.Column="0">To Date:</Label>
-                            <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1">
-                                <DatePicker x:Name="DataAnalysisToDatePicker"/>
-                                <TextBlock/>
-                            </StackPanel>
-                        </Grid>
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,30,0,0">
-                            <Button x:Name="RetrievePricesButton" Style="{StaticResource GoButton}" Margin="0,0,0,20" Click="RetrievePricesButton_Click">Retrieve Prices</Button>
-                            <Button x:Name="PlotButton" Click="PlotButton_Click" Style="{StaticResource GoButton}" Margin="0,0,0,20" Visibility="Collapsed">Plot</Button>
-                            <Button x:Name="ExportPricesButton" Click="ExportPricesButton_Click" Style="{StaticResource GoButton}" Visibility="Collapsed">Export</Button>
                         </StackPanel>
-                    </StackPanel>
 
-                    <StackPanel Orientation="Vertical" Grid.Column="1">
-                        <Grid x:Name="GraphsGrid" Visibility="Collapsed">
-                            <StackPanel Orientation="Vertical">
-                                <Label x:Name="LineChartTitle" Style="{StaticResource ChartTitleLabel}"></Label>
-                                <lvc:CartesianChart x:Name="LineChart"   Background="White" Height="400">
-                                    <lvc:CartesianChart.AxisX>
-                                        <lvc:Axis x:Name="LineChartHorizontalAxis" Title="Date" />
-                                    </lvc:CartesianChart.AxisX>
-                                    <lvc:CartesianChart.AxisY>
-                                        <lvc:Axis x:Name="LineChartVerticalAxis" Title="Price" />
-                                    </lvc:CartesianChart.AxisY>
-                                </lvc:CartesianChart>
-                            </StackPanel>
-                        </Grid>
-                    </StackPanel>
-                </Grid>
+                        <StackPanel Orientation="Vertical" Grid.Column="1">
+                            <Grid x:Name="GraphsGrid" Visibility="Collapsed">
+                                <StackPanel Orientation="Vertical">
+                                    <Label x:Name="LineChartTitle" Style="{StaticResource ChartTitleLabel}"></Label>
+                                    <lvc:CartesianChart x:Name="LineChart"   Background="White" Height="400">
+                                        <lvc:CartesianChart.AxisX>
+                                            <lvc:Axis x:Name="LineChartHorizontalAxis" Title="Date" />
+                                        </lvc:CartesianChart.AxisX>
+                                        <lvc:CartesianChart.AxisY>
+                                            <lvc:Axis x:Name="LineChartVerticalAxis" Title="Price" />
+                                        </lvc:CartesianChart.AxisY>
+                                    </lvc:CartesianChart>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
 
-                <DockPanel LastChildFill="True" Visibility="Collapsed">
-                    <StackPanel Orientation="Vertical" Margin="0,20,0,20">
-                        <TextBox TextWrapping="Wrap" Height="450" IsReadOnly="True" VerticalScrollBarVisibility="Auto"  AcceptsReturn="True" Name="DataAnalysisLogTextBox"/>
-                    </StackPanel>
-                </DockPanel>
+                    <DockPanel LastChildFill="True" Visibility="Collapsed">
+                        <StackPanel Orientation="Vertical" Margin="0,20,0,20">
+                            <TextBox TextWrapping="Wrap" Height="450" IsReadOnly="True" VerticalScrollBarVisibility="Auto"  AcceptsReturn="True" Name="DataAnalysisLogTextBox"/>
+                        </StackPanel>
+                    </DockPanel>
+                </StackPanel>
             </StackPanel>
         </TabItem>
     </TabControl>

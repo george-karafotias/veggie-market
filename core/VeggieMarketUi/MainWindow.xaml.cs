@@ -381,7 +381,7 @@ namespace VeggieMarketUi
             });
         }
 
-        private void RetrievePricesButton_Click(object sender, RoutedEventArgs e)
+        private async void RetrievePricesButton_Click(object sender, RoutedEventArgs e)
         {
             Market selectedMarket = GetSelectedMarket();
             if (selectedMarket == null)
@@ -417,7 +417,8 @@ namespace VeggieMarketUi
             priceRetrievalParameters.FromDate = fromDate.Value;
             priceRetrievalParameters.ToDate = toDate.Value;
 
-            retrievedPrices = dataStorageService.ProcessedProductPriceDbService.GetProcessedProductMarketPrices(priceRetrievalParameters.ProductId, priceRetrievalParameters.MarketId, priceRetrievalParameters.FromDate, priceRetrievalParameters.ToDate);
+            ShowPleaseWaitForDataAnalysis();
+            await Task.Run(() => RetrievePrices());
 
             if (retrievedPrices == null)
             {
@@ -425,19 +426,32 @@ namespace VeggieMarketUi
                 return;
             }
 
+            HidePleaseWaitForDataAnalysis();
             PlotButton.Visibility = Visibility.Visible;
             ExportPricesButton.Visibility = Visibility.Visible;
         }
 
-        private void PlotButton_Click(object sender, RoutedEventArgs e)
+        private void ShowPleaseWaitForDataAnalysis()
         {
-            List<string> selectedPriceTypes = GetSelectedPriceTypes();
-            if (selectedPriceTypes == null || selectedPriceTypes.Count == 0)
-            {
-                ShowErrorMessage("Please select at least one price indicator.");
-                return;
-            }
+            DataAnalysiInputPanel.Visibility = Visibility.Collapsed;
+            DataAnalysisContainer.VerticalAlignment = VerticalAlignment.Center;
+            DataAnalysisPleaseWaitPanel.Visibility = Visibility.Visible;
+        }
 
+        private void HidePleaseWaitForDataAnalysis()
+        {
+            DataAnalysiInputPanel.Visibility = Visibility.Visible;
+            DataAnalysisPleaseWaitPanel.Visibility = Visibility.Collapsed;
+            DataAnalysisContainer.VerticalAlignment = VerticalAlignment.Top;
+        }
+
+        private void RetrievePrices()
+        {
+            retrievedPrices = dataStorageService.ProcessedProductPriceDbService.GetProcessedProductMarketPrices(priceRetrievalParameters.ProductId, priceRetrievalParameters.MarketId, priceRetrievalParameters.FromDate, priceRetrievalParameters.ToDate);
+        }
+
+        private void Plot(List<string> selectedPriceTypes)
+        {
             List<string> labels = new List<string>();
             for (DateTime date = priceRetrievalParameters.FromDate.Value; date <= priceRetrievalParameters.ToDate.Value; date = date.AddDays(1))
             {
@@ -450,16 +464,37 @@ namespace VeggieMarketUi
             foreach (string priceType in selectedPriceTypes)
             {
                 double?[] priceValues = GetPriceValues(priceTypeDictionary[priceType]);
-                LineSeries lineSeries = new LineSeries();
-                lineSeries.Title = priceType;
-                lineSeries.Values = PrepareDataForChart(priceValues);
-                seriesCollection.Add(lineSeries);
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    LineSeries lineSeries = new LineSeries();
+                    lineSeries.Title = priceType;
+                    lineSeries.Values = PrepareDataForChart(priceValues);
+                    seriesCollection.Add(lineSeries);
+                });
             }
 
-            LineChartTitle.Content = "Chart";
-            LineChart.Series = seriesCollection;
-            LineChartHorizontalAxis.Labels = labels;
-            LineChartHorizontalAxis.LabelFormatter = formatter;
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                LineChartTitle.Content = "Chart";
+                LineChart.Series = seriesCollection;
+                LineChartHorizontalAxis.Labels = labels;
+                LineChartHorizontalAxis.LabelFormatter = formatter;
+            });
+        }
+
+        private async void PlotButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<string> selectedPriceTypes = GetSelectedPriceTypes();
+            if (selectedPriceTypes == null || selectedPriceTypes.Count == 0)
+            {
+                ShowErrorMessage("Please select at least one price indicator.");
+                return;
+            }
+
+            ShowPleaseWaitForDataAnalysis();
+            await Task.Run(() => Plot(selectedPriceTypes));
+
+            HidePleaseWaitForDataAnalysis();
             GraphsGrid.Visibility = Visibility.Visible;
         }
 
@@ -608,10 +643,15 @@ namespace VeggieMarketUi
             }
             destination.ItemsSource = itemsDestination;
 
-            foreach (int itemToRemove in itemsToRemove)
+            ObservableCollection<object> newItemsSource = new ObservableCollection<object>();
+            for (int i = 0; i < itemsSource.Count(); i++)
             {
-                itemsSource.RemoveAt(itemToRemove);
+                if (!itemsToRemove.Contains(i))
+                {
+                    newItemsSource.Add(itemsSource[i]);
+                }
             }
+            source.ItemsSource = newItemsSource;
         }
     }
 }
