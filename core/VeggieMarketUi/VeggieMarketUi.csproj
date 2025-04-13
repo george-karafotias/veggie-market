@@ -73,6 +73,7 @@
     </ApplicationDefinition>
     <Compile Include="Models\PricePeriod.cs" />
     <Compile Include="Models\PriceRetrievalParameters.cs" />
+    <Compile Include="ChartCreator.cs" />
     <Compile Include="TextBoxLogger.cs" />
     <Page Include="Assets\DefaultStyleDictionary.xaml">
       <SubType>Designer</SubType>
