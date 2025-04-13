@@ -12,7 +12,16 @@ namespace VeggieMarketUi
 {
     public class ChartCreator
     {
-        public List<Chart> CreateCharts(List<string> selectedPriceTypes, PriceRetrievalParameters priceRetrievalParameters, IEnumerable<ProductPrice> retrievedPrices)
+        public enum ChartGroup
+        {
+            Market,
+            Product,
+            Year,
+            Price,
+            NoGroup
+        }
+
+        public List<Chart> CreateCharts(List<string> selectedPriceTypes, PriceRetrievalParameters priceRetrievalParameters, IEnumerable<ProductPrice> retrievedPrices, ChartGroup chartGroup)
         {
             SeriesCollection seriesCollection = new SeriesCollection();
             Dictionary<string, string> priceTypeDictionary = ProductPrice.GetPriceTypes();

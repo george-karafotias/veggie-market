@@ -188,13 +188,13 @@
 
                                 <Label Grid.Row="0" Grid.Column="0">From Date:</Label>
                                 <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
-                                    <DatePicker x:Name="DataAnalysisFromDatePicker"/>
+                                    <DatePicker x:Name="DataAnalysisFromDatePicker" SelectedDateChanged="DataAnalysisFromDatePicker_SelectedDateChanged"/>
                                     <TextBlock/>
                                 </StackPanel>
 
                                 <Label Grid.Row="1" Grid.Column="0">To Date:</Label>
                                 <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
-                                    <DatePicker x:Name="DataAnalysisToDatePicker"/>
+                                    <DatePicker x:Name="DataAnalysisToDatePicker" SelectedDateChanged="DataAnalysisToDatePicker_SelectedDateChanged"/>
                                     <TextBlock/>
                                 </StackPanel>
                             </Grid>
@@ -203,7 +203,7 @@
                                 <Button x:Name="RetrievePricesButton" Style="{StaticResource GoButton}"  Click="RetrievePricesButton_Click">Retrieve Prices</Button>
                             </StackPanel>
 
-                            <StackPanel x:Name="PriceAnalysisStackPanel" Orientation="Vertical" Visibility="Collapsed">
+                            <StackPanel x:Name="PriceAnalysisPanel" Orientation="Vertical" HorizontalAlignment="Left" Visibility="Collapsed">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition></RowDefinition>
@@ -212,6 +212,7 @@
                                         <ColumnDefinition Width="Auto"></ColumnDefinition>
                                         <ColumnDefinition Width="*"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
+                                    
                                     <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
                                         <StackPanel Orientation="Vertical">
                                             <Label>Available Prices</Label>
@@ -229,8 +230,17 @@
                                 </Grid>
 
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,30,0,0">
-                                    <Button x:Name="PlotButton" Click="PlotButton_Click" Style="{StaticResource GoButton}" Margin="0,0,0,20">Plot</Button>
-                                    <Button x:Name="ExportPricesButton" Click="ExportPricesButton_Click" Style="{StaticResource GoButton}">Export</Button>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="PlotButton" Click="PlotButton_Click" Style="{StaticResource GoButton}" Margin="0,0,0,20">Plot</Button>
+                                        <StackPanel x:Name="PlotGroupingPanel" Orientation="Horizontal" VerticalAlignment="Top">
+                                            <Label>Group By: </Label>
+                                            <ComboBox x:Name="PlotGroupingComboBox" Width="200">
+                                                
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    
+                                    <Button x:Name="ExportPricesButton" Click="ExportPricesButton_Click" Style="{StaticResource GoButton}" HorizontalAlignment="Left">Export</Button>
                                 </StackPanel>
                             </StackPanel>
                             
@@ -240,15 +250,6 @@
                             <StackPanel Orientation="Vertical">
                                 <Grid>
                                     <StackPanel x:Name="GraphContainer" Orientation="Vertical">
-                                        <!--<Label x:Name="LineChartTitle" Style="{StaticResource ChartTitleLabel}"></Label>
-            <lvc:CartesianChart x:Name="LineChart"   Background="White" Height="400" DisableAnimations="True" Hoverable="False" DataTooltip="{x:Null}">
-                <lvc:CartesianChart.AxisX>
-                    <lvc:Axis x:Name="LineChartHorizontalAxis" Title="Date" />
-                </lvc:CartesianChart.AxisX>
-                <lvc:CartesianChart.AxisY>
-                    <lvc:Axis x:Name="LineChartVerticalAxis" Title="Price" />
-                </lvc:CartesianChart.AxisY>
-            </lvc:CartesianChart>-->
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>

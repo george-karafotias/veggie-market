@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
-using LiveCharts.Wpf;
-using LiveCharts;
 using Microsoft.Win32;
 using VeggieMarketDataProcessor;
 using VeggieMarketDataReader;
@@ -17,9 +15,8 @@ using VeggieMarketLogger;
 using VeggieMarketScraper;
 using VeggieMarketUi.Models;
 using VeggieDataExporter;
-using System.Windows.Media;
 using LiveCharts.Wpf.Charts.Base;
-using LiveCharts.Definitions.Charts;
+using static VeggieMarketUi.ChartCreator;
 
 namespace VeggieMarketUi
 {
@@ -430,7 +427,7 @@ namespace VeggieMarketUi
             }
 
             HidePleaseWaitForDataAnalysis();
-            PriceAnalysisStackPanel.Visibility = Visibility.Visible;
+            PriceAnalysisPanel.Visibility = Visibility.Visible;
         }
 
         private void ShowPleaseWaitForDataAnalysis()
@@ -454,7 +451,15 @@ namespace VeggieMarketUi
 
         private void Plot(List<string> selectedPriceTypes)
         {
-            List<Chart> charts = new ChartCreator().CreateCharts(selectedPriceTypes, priceRetrievalParameters, retrievedPrices);
+            ChartGroup chartGroup = ChartGroup.NoGroup;
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                if (PlotGroupingComboBox.SelectedValue != null)
+                {
+                    chartGroup = (ChartGroup)Enum.Parse(typeof(ChartGroup), PlotGroupingComboBox.SelectedValue.ToString());
+                }
+            });
+            List<Chart> charts = new ChartCreator().CreateCharts(selectedPriceTypes, priceRetrievalParameters, retrievedPrices, chartGroup);
 
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
@@ -468,6 +473,12 @@ namespace VeggieMarketUi
 
         private async void PlotButton_Click(object sender, RoutedEventArgs e)
         {
+            if (retrievedPrices == null)
+            {
+                ShowErrorMessage("No prices retrieved.");
+                return;
+            }
+
             List<string> selectedPriceTypes = GetSelectedPriceTypes();
             if (selectedPriceTypes == null || selectedPriceTypes.Count == 0)
             {
@@ -485,9 +496,9 @@ namespace VeggieMarketUi
 
         private List<string> GetSelectedPriceTypes()
         {
-            ObservableCollection<object> selectedPriceTypesCollection = SelectedPricesListBox.ItemsSource as ObservableCollection<object>;
-            if (selectedPriceTypesCollection == null || selectedPriceTypesCollection.Count() == 0) return null;
             List<string> selectedPriceTypes = new List<string>();
+            ObservableCollection<object> selectedPriceTypesCollection = SelectedPricesListBox.ItemsSource as ObservableCollection<object>;
+            if (selectedPriceTypesCollection == null || selectedPriceTypesCollection.Count() == 0) return selectedPriceTypes;
             foreach (object price in selectedPriceTypesCollection)
             {
                 selectedPriceTypes.Add(price.ToString());
@@ -559,31 +570,47 @@ namespace VeggieMarketUi
         private void AddToSelectedMarketsButton_Click(object sender, RoutedEventArgs e)
         {
             MoveSelectedItems(AvailableMarketsListBox, SelectedMarketsListBox);
+            UpdatePlotGroups();
         }
 
         private void RemoveFromSelectedMarketsButton_Click(object sender, RoutedEventArgs e)
         {
             MoveSelectedItems(SelectedMarketsListBox, AvailableMarketsListBox);
+            UpdatePlotGroups();
         }
 
         private void AddToSelectedProductsButton_Click(object sender, RoutedEventArgs e)
         {
             MoveSelectedItems(AvailableProductsListBox, SelectedProductsListBox);
+            UpdatePlotGroups();
         }
 
         private void RemoveFromSelectedProductsButton_Click(object sender, RoutedEventArgs e)
         {
             MoveSelectedItems(SelectedProductsListBox, AvailableProductsListBox);
+            UpdatePlotGroups();
         }
 
         private void AddToSelectedPricesButton_Click(object sender, RoutedEventArgs e)
         {
             MoveSelectedItems(AvailablePricesListBox, SelectedPricesListBox);
+            UpdatePlotGroups();
         }
 
         private void RemoveFromSelectedPricesButton_Click(object sender, RoutedEventArgs e)
         {
             MoveSelectedItems(SelectedPricesListBox, AvailablePricesListBox);
+            UpdatePlotGroups();
+        }
+
+        private void DataAnalysisFromDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdatePlotGroups();
+        }
+
+        private void DataAnalysisToDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdatePlotGroups();
         }
 
         private void MoveSelectedItems(ListBox source, ListBox destination)
@@ -620,6 +647,41 @@ namespace VeggieMarketUi
                 }
             }
             source.ItemsSource = newItemsSource;
+        }
+
+        private void UpdatePlotGroups()
+        {
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                PlotGroupingComboBox.Items.Clear();
+                PlotGroupingComboBox.SelectedIndex = -1;
+                PlotGroupingPanel.Visibility = Visibility.Collapsed;
+            });
+
+            List<Market> selectedMarkets = GetSelectedMarkets();
+            List<Product> selectedProducts = GetSelectedProducts();
+            List<string> selectedPriceTypes = GetSelectedPriceTypes();
+            List<int> selectedYears = DateHelper.CalculateFullYearsList(DataAnalysisFromDatePicker.SelectedDate, DataAnalysisToDatePicker.SelectedDate);
+
+            //if at least 2 multiple selections exist, then the sum of all the 4 lists should be greater than 5
+            bool groupExists = selectedMarkets.Count + selectedProducts
+                .Count + selectedPriceTypes.Count + selectedYears.Count > 5;
+            if (!groupExists) return;
+
+            List<string> groups = new List<string>();
+            if (selectedMarkets.Count > 1) groups.Add(ChartCreator.ChartGroup.Market.ToString());
+            if (selectedProducts.Count > 1) groups.Add(ChartCreator.ChartGroup.Product.ToString());
+            if (selectedPriceTypes.Count > 1) groups.Add(ChartCreator.ChartGroup.Price.ToString());
+            if (selectedYears.Count > 1) groups.Add(ChartCreator.ChartGroup.Year.ToString());
+
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                PlotGroupingPanel.Visibility = Visibility.Visible;
+                foreach (string group in groups)
+                {
+                    PlotGroupingComboBox.Items.Add(group);
+                }
+            });
         }
     }
 }
