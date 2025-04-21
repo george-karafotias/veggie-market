@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -17,12 +19,12 @@ namespace VeggieDataExporter
             this.logger = logger;
         }
 
-        public void ExportProductPrices(string fileName, IEnumerable<ProductPrice> productPrices, IEnumerable<string> priceTypes)
+        public bool ExportProductPrices(string fileName, IEnumerable<ProductPrice> productPrices, IEnumerable<string> priceTypes)
         {
             if (productPrices == null)
             {
                 logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "No product prices to export", LogType.Error);
-                return;
+                return false;
             }
 
             Dictionary<int, List<ProductPrice>> productPricesPerYear = ProductPriceGrouping.GroupByYear(productPrices);
@@ -31,7 +33,7 @@ namespace VeggieDataExporter
             if (selectedPriceTypes.Count == 0)
             {
                 logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "The selected price types are not valid", LogType.Error);
-                return;
+                return false;
             }
 
             StringBuilder output = new StringBuilder();
@@ -42,7 +44,7 @@ namespace VeggieDataExporter
             foreach (KeyValuePair<int, List<ProductPrice>> productPriceYearEntry in productPricesPerYear)
             {
                 int year = productPriceYearEntry.Key;
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Exporting year " + year, LogType.Info);
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Exporting year " + year + "...", LogType.Info);
                 output.Append(CreateJsonKey(year.ToString()));
                 output.Append("[");
 
@@ -72,7 +74,18 @@ namespace VeggieDataExporter
             
             output.Append("}");
             string outputJson = output.ToString();
-            System.IO.File.WriteAllText(fileName + ".json", BeautifyJson(outputJson));
+            try
+            {
+                string fullPath = Path.GetFullPath(fileName + ".json");
+                System.IO.File.WriteAllText(fileName + ".json", BeautifyJson(outputJson));
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Successfully exported " + fullPath, LogType.Info);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "An exception has occurred while exporting the data. Ex: " + ex.StackTrace, LogType.Error);
+                return false;
+            }
         }
 
         private string BeautifyJson(string json)

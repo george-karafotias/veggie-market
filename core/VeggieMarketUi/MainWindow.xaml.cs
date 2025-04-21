@@ -551,8 +551,14 @@ namespace VeggieMarketUi
             }
 
             HidePleaseWaitForDataAnalysis();
-            GraphsContainer.Height = this.Height;
-            GraphsContainer.Visibility = Visibility.Visible;
+            DataAnalysisLogTextBox.Visibility = Visibility.Collapsed;
+            ShowContentContainer();
+        }
+
+        private void ShowContentContainer()
+        {
+            ContentContainer.Height = this.Height;
+            ContentContainer.Visibility = Visibility.Visible;
         }
 
         private List<string> GetSelectedPriceTypes()
@@ -601,6 +607,8 @@ namespace VeggieMarketUi
             }
 
             PriceRetrievalParameters retrievalParameters = ConstructRetrievalParameters();
+            DataAnalysisLogTextBox.Visibility = Visibility.Visible;
+            ShowContentContainer();
             if (!retrievalParameters.IsSame(priceRetrievalParameters))
             {
                 priceRetrievalParameters = retrievalParameters;

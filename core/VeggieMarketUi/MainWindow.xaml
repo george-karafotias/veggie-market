@@ -212,7 +212,7 @@
                                         <ColumnDefinition Width="Auto"></ColumnDefinition>
                                         <ColumnDefinition Width="*"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
-                                    
+
                                     <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
                                         <StackPanel Orientation="Vertical">
                                             <Label>Available Prices</Label>
@@ -233,21 +233,22 @@
                                     <StackPanel Orientation="Horizontal">
                                         <Button x:Name="PlotButton" Click="PlotButton_Click" Style="{StaticResource GoButton}" Margin="0,0,0,20">Plot</Button>
                                         <StackPanel x:Name="PlotGroupingPanel" Orientation="Horizontal" VerticalAlignment="Top">
-                                            <Label>Group By: </Label>
+                                            <Label>Group By:</Label>
                                             <ComboBox x:Name="PlotGroupingComboBox" Width="200">
-                                                
+
                                             </ComboBox>
                                         </StackPanel>
                                     </StackPanel>
-                                    
+
                                     <Button x:Name="ExportPricesButton" Click="ExportPricesButton_Click" Style="{StaticResource GoButton}" HorizontalAlignment="Left">Export</Button>
                                 </StackPanel>
                             </StackPanel>
-                            
+
                         </StackPanel>
 
-                        <ScrollViewer x:Name="GraphsContainer" Grid.Column="1" VerticalScrollBarVisibility="Visible" Visibility="Collapsed">
+                        <ScrollViewer x:Name="ContentContainer" Grid.Column="1" VerticalScrollBarVisibility="Visible" Visibility="Collapsed">
                             <StackPanel Orientation="Vertical">
+                                <TextBox TextWrapping="Wrap" Height="450" IsReadOnly="True" VerticalScrollBarVisibility="Auto"  AcceptsReturn="True" Name="DataAnalysisLogTextBox" Visibility="Collapsed"/>
                                 <Grid>
                                     <StackPanel x:Name="GraphContainer" Orientation="Vertical">
                                     </StackPanel>
@@ -255,12 +256,6 @@
                             </StackPanel>
                         </ScrollViewer>
                     </Grid>
-
-                    <DockPanel LastChildFill="True" Visibility="Collapsed">
-                        <StackPanel Orientation="Vertical" Margin="0,20,0,20">
-                            <TextBox TextWrapping="Wrap" Height="450" IsReadOnly="True" VerticalScrollBarVisibility="Auto"  AcceptsReturn="True" Name="DataAnalysisLogTextBox"/>
-                        </StackPanel>
-                    </DockPanel>
                 </StackPanel>
             </StackPanel>
         </TabItem>

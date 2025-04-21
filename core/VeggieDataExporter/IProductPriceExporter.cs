@@ -5,6 +5,6 @@ namespace VeggieDataExporter
 {
     public interface IProductPriceExporter
     {
-        void ExportProductPrices(string fileName, IEnumerable<ProductPrice> productPrices, IEnumerable<string> priceTypes);
+        bool ExportProductPrices(string fileName, IEnumerable<ProductPrice> productPrices, IEnumerable<string> priceTypes);
     }
 }
