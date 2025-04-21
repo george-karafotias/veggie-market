@@ -35,7 +35,7 @@ namespace VeggieMarketUi
                     {
                         foreach (string priceType in selectedPriceTypes)
                         {
-                            string seriesTitle = product.ProductName + " " + year;
+                            string seriesTitle = product.ProductName + " " + year + " - " + priceType;
                             List<ProductPrice> filteredPrices = FilterPrices(retrievedPrices, market, product, year);
 
                             System.Windows.Application.Current.Dispatcher.Invoke(() =>
@@ -47,6 +47,70 @@ namespace VeggieMarketUi
                 }
 
                 charts.Add(new VeggieChartData(market.MarketName, seriesCollection));
+            }
+
+            return charts;
+        }
+
+        private List<VeggieChartData> GroupChartsByProduct(List<string> selectedPriceTypes, PriceRetrievalParameters priceRetrievalParameters, List<ProductPrice> retrievedPrices)
+        {
+            List<int> selectedYears = DateHelper.CalculateFullYearsList(priceRetrievalParameters.FromDate, priceRetrievalParameters.ToDate);
+            List<VeggieChartData> charts = new List<VeggieChartData>();
+
+            foreach (Product product in priceRetrievalParameters.Products)
+            {
+                SeriesCollection seriesCollection = new SeriesCollection();
+
+                foreach (int year in selectedYears)
+                {
+                    foreach (Market market in priceRetrievalParameters.Markets)
+                    {
+                        foreach (string priceType in selectedPriceTypes)
+                        {
+                            string seriesTitle = market.MarketName + " " + year + " - " + priceType;
+                            List<ProductPrice> filteredPrices = FilterPrices(retrievedPrices, market, product, year);
+
+                            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                seriesCollection.Add(CreateLineSeries(seriesTitle, priceType, filteredPrices));
+                            });
+                        }
+                    }
+                }
+
+                charts.Add(new VeggieChartData(product.ProductName, seriesCollection));
+            }
+
+            return charts;
+        }
+
+        private List<VeggieChartData> GroupChartsByPrice(List<string> selectedPriceTypes, PriceRetrievalParameters priceRetrievalParameters, List<ProductPrice> retrievedPrices)
+        {
+            List<int> selectedYears = DateHelper.CalculateFullYearsList(priceRetrievalParameters.FromDate, priceRetrievalParameters.ToDate);
+            List<VeggieChartData> charts = new List<VeggieChartData>();
+
+            foreach (string priceType in selectedPriceTypes)
+            {
+                SeriesCollection seriesCollection = new SeriesCollection();
+
+                foreach (int year in selectedYears)
+                {
+                    foreach (Market market in priceRetrievalParameters.Markets)
+                    {
+                        foreach (Product product in priceRetrievalParameters.Products)
+                        {
+                            string seriesTitle = market.MarketName + " " + product.ProductName + " " + year;
+                            List<ProductPrice> filteredPrices = FilterPrices(retrievedPrices, market, product, year);
+
+                            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                seriesCollection.Add(CreateLineSeries(seriesTitle, priceType, filteredPrices));
+                            });
+                        }
+                    }
+                }
+
+                charts.Add(new VeggieChartData(priceType, seriesCollection));
             }
 
             return charts;
@@ -83,7 +147,7 @@ namespace VeggieMarketUi
             double?[] priceValues = GetPriceValues(priceTypeDictionary[priceType], prices);
             LineSeries lineSeries = new LineSeries();
             lineSeries.PointGeometry = null;
-            lineSeries.Title = title + " - " + priceType;
+            lineSeries.Title = title;
             lineSeries.Values = PrepareDataForChart(priceValues);
 
             return lineSeries;
@@ -122,6 +186,14 @@ namespace VeggieMarketUi
             if (chartGroup == ChartGroup.Market)
             {
                 allChartsData = GroupChartsByMarket(selectedPriceTypes, priceRetrievalParameters, retrievedPrices);
+            }
+            else if (chartGroup == ChartGroup.Product)
+            {
+                allChartsData = GroupChartsByProduct(selectedPriceTypes, priceRetrievalParameters, retrievedPrices);
+            }
+            else if (chartGroup == ChartGroup.Price)
+            {
+                allChartsData = GroupChartsByPrice(selectedPriceTypes, priceRetrievalParameters, retrievedPrices);
             }
             else
             {
