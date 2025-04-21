@@ -199,8 +199,8 @@
                                 </StackPanel>
                             </Grid>
 
-                            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,20,0,20">
-                                <Button x:Name="RetrievePricesButton" Style="{StaticResource GoButton}"  Click="RetrievePricesButton_Click">Retrieve Prices</Button>
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                <Button x:Name="RetrievePricesButton" Style="{StaticResource GoButton}"  Click="RetrievePricesButton_Click" Margin="0,20,0,20">Retrieve Prices</Button>
                             </StackPanel>
 
                             <StackPanel x:Name="PriceAnalysisPanel" Orientation="Vertical" HorizontalAlignment="Left" Visibility="Collapsed">

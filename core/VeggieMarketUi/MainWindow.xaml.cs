@@ -15,7 +15,6 @@ using VeggieMarketLogger;
 using VeggieMarketScraper;
 using VeggieMarketUi.Models;
 using VeggieDataExporter;
-using LiveCharts.Wpf.Charts.Base;
 using static VeggieMarketUi.ChartCreator;
 
 namespace VeggieMarketUi
@@ -25,6 +24,13 @@ namespace VeggieMarketUi
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const string NO_SELECTED_MARKETS_ERROR = "Please select the market.";
+        private const string NO_SELECTED_PRODUCTS_ERROR = "Please select a product.";
+        private const string NO_SELECTED_FROM_DATE_ERROR = "Please select from date.";
+        private const string NO_SELECTED_TO_DATE_ERROR = "Please select to date.";
+        private const string NO_RETRIEVED_PRICES_ERROR = "No prices retrieved.";
+        private const string NO_SELECTED_PRICE_TYPES_ERROR = "Please select at least one price indicator.";
+
         private DataStorageService dataStorageService;
         private Dictionary<string, MarketDataReader> marketReaderMap;
         private Dictionary<string, PriceScraper> marketPriceScraperMap;
@@ -32,7 +38,7 @@ namespace VeggieMarketUi
         private TextBoxLogger downloadDataTextBoxLogger;
         private TextBoxLogger dataAnalysisTextBoxLogger;
         private PriceRetrievalParameters priceRetrievalParameters;
-        private IEnumerable<ProductPrice> retrievedPrices;
+        private List<ProductPrice> retrievedPrices;
 
         public MainWindow()
         {
@@ -240,14 +246,14 @@ namespace VeggieMarketUi
             DateTime? fromDate = FromDatePicker.SelectedDate;
             if (fromDate == null)
             {
-                ShowErrorMessage("Please select from date.");
+                ShowErrorMessage(NO_SELECTED_FROM_DATE_ERROR);
                 return;
             }
 
             DateTime? toDate = ToDatePicker.SelectedDate;
             if (toDate == null)
             {
-                ShowErrorMessage("Please select to date.");
+                ShowErrorMessage(NO_SELECTED_TO_DATE_ERROR);
                 return;
             }
 
@@ -381,41 +387,49 @@ namespace VeggieMarketUi
             });
         }
 
-        private async void RetrievePricesButton_Click(object sender, RoutedEventArgs e)
+        private PriceRetrievalParameters ConstructRetrievalParameters()
         {
             List<Market> selectedMarkets = GetSelectedMarkets();
             if (selectedMarkets.Count == 0)
             {
-                ShowErrorMessage("Please select the market.");
-                return;
+                ShowErrorMessage(NO_SELECTED_MARKETS_ERROR);
+                return null;
             }
 
             List<Product> selectedProducts = GetSelectedProducts();
             if (selectedProducts.Count == 0)
             {
-                ShowErrorMessage("Please select a product.");
-                return;
+                ShowErrorMessage(NO_SELECTED_PRODUCTS_ERROR);
+                return null;
             }
 
             DateTime? fromDate = DataAnalysisFromDatePicker.SelectedDate;
             if (fromDate == null)
             {
-                ShowErrorMessage("Please select from date.");
-                return;
+                ShowErrorMessage(NO_SELECTED_FROM_DATE_ERROR);
+                return null;
             }
 
             DateTime? toDate = DataAnalysisToDatePicker.SelectedDate;
             if (toDate == null)
             {
-                ShowErrorMessage("Please select to date.");
-                return;
+                ShowErrorMessage(NO_SELECTED_TO_DATE_ERROR);
+                return null;
             }
 
-            priceRetrievalParameters = new PriceRetrievalParameters();
-            priceRetrievalParameters.Products = selectedProducts;
-            priceRetrievalParameters.Markets = selectedMarkets;
-            priceRetrievalParameters.FromDate = fromDate.Value;
-            priceRetrievalParameters.ToDate = toDate.Value;
+            PriceRetrievalParameters retrievalParameters = new PriceRetrievalParameters();
+            retrievalParameters.Products = selectedProducts;
+            retrievalParameters.Markets = selectedMarkets;
+            retrievalParameters.FromDate = fromDate.Value;
+            retrievalParameters.ToDate = toDate.Value;
+            return retrievalParameters;
+        }
+
+        private async void RetrievePricesButton_Click(object sender, RoutedEventArgs e)
+        {
+            PriceRetrievalParameters retrievalParameters = ConstructRetrievalParameters();
+            if (retrievalParameters == null) return;
+            priceRetrievalParameters = retrievalParameters;
 
             ShowPleaseWaitForDataAnalysis();
             await Task.Run(() => RetrievePrices());
@@ -427,6 +441,7 @@ namespace VeggieMarketUi
             }
 
             HidePleaseWaitForDataAnalysis();
+            RetrievePricesButton.Visibility = Visibility.Collapsed;
             PriceAnalysisPanel.Visibility = Visibility.Visible;
         }
 
@@ -446,7 +461,39 @@ namespace VeggieMarketUi
 
         private void RetrievePrices()
         {
-            retrievedPrices = dataStorageService.ProcessedProductPriceDbService.GetProcessedProductMarketPrices(priceRetrievalParameters.Products[0].ProductId, priceRetrievalParameters.Markets[0].MarketId, priceRetrievalParameters.FromDate, priceRetrievalParameters.ToDate);
+            retrievedPrices = new List<ProductPrice>();
+            foreach (Market market in priceRetrievalParameters.Markets)
+            {
+                foreach (Product product in priceRetrievalParameters.Products)
+                {
+                    IEnumerable<ProductPrice> prices = dataStorageService.ProcessedProductPriceDbService.GetProcessedProductMarketPrices(product.ProductId, market.MarketId, priceRetrievalParameters.FromDate, priceRetrievalParameters.ToDate);
+                    foreach (ProductPrice price in prices)
+                    {
+                        retrievedPrices.Add(price);
+                    }
+                }
+            }
+        }
+
+        private void RetrievePricesAndPlot(List<string> selectedPriceTypes)
+        {
+            RetrievePrices();
+            Plot(selectedPriceTypes);
+        }
+
+        private void RetrievePricesAndExport(List<string> selectedPriceTypes)
+        {
+            RetrievePrices();
+            Export(selectedPriceTypes);
+        }
+
+        private void Export(List<string> selectedPriceTypes)
+        {
+            JsonProductPriceExporter jsonProductPriceExporter = new JsonProductPriceExporter(dataAnalysisTextBoxLogger);
+            foreach (Product product in priceRetrievalParameters.Products)
+            {
+                jsonProductPriceExporter.ExportProductPrices(product.ProductName, retrievedPrices, selectedPriceTypes);
+            }
         }
 
         private void Plot(List<string> selectedPriceTypes)
@@ -459,35 +506,49 @@ namespace VeggieMarketUi
                     chartGroup = (ChartGroup)Enum.Parse(typeof(ChartGroup), PlotGroupingComboBox.SelectedValue.ToString());
                 }
             });
-            List<Chart> charts = new ChartCreator().CreateCharts(selectedPriceTypes, priceRetrievalParameters, retrievedPrices, chartGroup);
+            List<VeggieChart> charts = new ChartCreator().CreateCharts(selectedPriceTypes, priceRetrievalParameters, retrievedPrices, chartGroup);
 
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                foreach (Chart chart in charts)
+                GraphContainer.Children.Clear();
+                foreach (VeggieChart chart in charts)
                 {
-                    GraphContainer.Children.Clear();
-                    GraphContainer.Children.Add(chart);
+                    StackPanel stackPanel = new StackPanel
+                    {
+                        Orientation = Orientation.Vertical,
+                        Margin = new Thickness(0, 0, 0, 10)
+                    };
+                    Label chartTitleLabel = new Label();
+                    chartTitleLabel.Content = chart.Title;
+                    stackPanel.Children.Add(chartTitleLabel);
+                    stackPanel.Children.Add(chart.Chart);
+
+                    GraphContainer.Children.Add(stackPanel);
                 }
             });
         }
 
         private async void PlotButton_Click(object sender, RoutedEventArgs e)
         {
-            if (retrievedPrices == null)
-            {
-                ShowErrorMessage("No prices retrieved.");
-                return;
-            }
-
             List<string> selectedPriceTypes = GetSelectedPriceTypes();
             if (selectedPriceTypes == null || selectedPriceTypes.Count == 0)
             {
-                ShowErrorMessage("Please select at least one price indicator.");
+                ShowErrorMessage(NO_SELECTED_PRICE_TYPES_ERROR);
                 return;
             }
 
             ShowPleaseWaitForDataAnalysis();
-            await Task.Run(() => Plot(selectedPriceTypes));
+
+            PriceRetrievalParameters retrievalParameters = ConstructRetrievalParameters();
+            if (!retrievalParameters.IsSame(priceRetrievalParameters))
+            {
+                priceRetrievalParameters = retrievalParameters;
+                await Task.Run(() => RetrievePricesAndPlot(selectedPriceTypes));
+            }
+            else
+            {
+                await Task.Run(() => Plot(selectedPriceTypes));
+            }
 
             HidePleaseWaitForDataAnalysis();
             GraphsContainer.Height = this.Height;
@@ -530,23 +591,25 @@ namespace VeggieMarketUi
             return productList;
         }
 
-        private void ExportPricesButton_Click(object sender, RoutedEventArgs e)
+        private async void ExportPricesButton_Click(object sender, RoutedEventArgs e)
         {
-            if (retrievedPrices == null)
+            List<string> selectedPriceTypes = GetSelectedPriceTypes();
+            if (selectedPriceTypes == null || selectedPriceTypes.Count == 0)
             {
-                ShowErrorMessage("No prices retrieved.");
+                ShowErrorMessage(NO_SELECTED_PRICE_TYPES_ERROR);
                 return;
             }
 
-            List<Product> selectedProducts = GetSelectedProducts();
-            if (selectedProducts.Count == 0)
+            PriceRetrievalParameters retrievalParameters = ConstructRetrievalParameters();
+            if (!retrievalParameters.IsSame(priceRetrievalParameters))
             {
-                ShowErrorMessage("Please select a product.");
-                return;
+                priceRetrievalParameters = retrievalParameters;
+                await Task.Run(() => RetrievePricesAndExport(selectedPriceTypes));
             }
-
-            JsonProductPriceExporter jsonProductPriceExporter = new JsonProductPriceExporter(dataAnalysisTextBoxLogger);
-            jsonProductPriceExporter.ExportProductPrices(selectedProducts[0].ProductName, retrievedPrices, GetSelectedPriceTypes());
+            else
+            {
+                await Task.Run(() => Export(selectedPriceTypes));
+            }
         }
 
         private void GetAvailableDataButton_Click(object sender, RoutedEventArgs e)
@@ -651,8 +714,11 @@ namespace VeggieMarketUi
 
         private void UpdatePlotGroups()
         {
+            string previouslySelected = "";
+
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
+                previouslySelected = Convert.ToString(PlotGroupingComboBox.SelectedItem);
                 PlotGroupingComboBox.Items.Clear();
                 PlotGroupingComboBox.SelectedIndex = -1;
                 PlotGroupingPanel.Visibility = Visibility.Collapsed;
@@ -669,6 +735,7 @@ namespace VeggieMarketUi
             if (!groupExists) return;
 
             List<string> groups = new List<string>();
+            groups.Add(ChartCreator.ChartGroup.NoGroup.ToString());
             if (selectedMarkets.Count > 1) groups.Add(ChartCreator.ChartGroup.Market.ToString());
             if (selectedProducts.Count > 1) groups.Add(ChartCreator.ChartGroup.Product.ToString());
             if (selectedPriceTypes.Count > 1) groups.Add(ChartCreator.ChartGroup.Price.ToString());
@@ -680,6 +747,28 @@ namespace VeggieMarketUi
                 foreach (string group in groups)
                 {
                     PlotGroupingComboBox.Items.Add(group);
+                }
+
+                if (!string.IsNullOrEmpty(previouslySelected))
+                {
+                    int selectedIndex = -1;
+                    for (int i = 0; i < groups.Count; i++)
+                    {
+                        if (groups[i] == previouslySelected)
+                        {
+                            selectedIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (selectedIndex >= 0)
+                    {
+                        PlotGroupingComboBox.SelectedIndex = selectedIndex;
+                    }
+                } 
+                else
+                {
+                    PlotGroupingComboBox.SelectedIndex = 0;
                 }
             });
         }

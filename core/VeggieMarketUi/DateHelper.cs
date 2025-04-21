@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace VeggieMarketUi
 {
@@ -12,15 +13,47 @@ namespace VeggieMarketUi
 
             DateTime startDate = start.Value;
             DateTime endDate = end.Value;
-            int years = endDate.Year - startDate.Year;
-            if (endDate.Month < startDate.Month || (endDate.Month == startDate.Month && endDate.Day < startDate.Day))
+            int startYear = startDate.Year;
+            int endYear = endDate.Year;
+            List<int> allYears = GetYears(startYear, endYear);
+            HashSet<int> years = new HashSet<int>();
+            foreach (int year in allYears)
             {
-                years--;
+                if (year == startYear)
+                {
+                    DateTime firstDayOfYear = new DateTime(year, 1, 1);
+                    if (startDate == firstDayOfYear)
+                    {
+                        years.Add(year);
+                    }
+                }
+                
+                if (year == endYear)
+                {
+                    DateTime lastDayOfYear = new DateTime(year, 12, 31);
+                    if (endDate == lastDayOfYear)
+                    {
+                        years.Add(year);
+                    }
+                }
+                
+                if (year != startYear && year != endYear)
+                {
+                    years.Add(year);
+                }
             }
 
-            fullYearsList.Add(years);
+            return years.ToList();
+        }
 
-            return fullYearsList;
+        public static List<int> GetYears(int startYear, int endYear)
+        {
+            List<int> years = new List<int>();
+            for (int year = startYear; year <= endYear; year++)
+            {
+                years.Add(year);
+            }
+            return years;
         }
     }
 }

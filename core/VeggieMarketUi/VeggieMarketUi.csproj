@@ -75,7 +75,9 @@
     <Compile Include="Models\PricePeriod.cs" />
     <Compile Include="Models\PriceRetrievalParameters.cs" />
     <Compile Include="ChartCreator.cs" />
+    <Compile Include="Models\VeggieChartData.cs" />
     <Compile Include="TextBoxLogger.cs" />
+    <Compile Include="Models\VeggieChart.cs" />
     <Page Include="Assets\DefaultStyleDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
