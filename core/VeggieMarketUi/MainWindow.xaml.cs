@@ -781,5 +781,39 @@ namespace VeggieMarketUi
                 }
             });
         }
+
+        private void SetDatabaseButton_Click(object sender, RoutedEventArgs e)
+        {
+            SqliteDbService sqliteDbService = dataStorageService.DbService as SqliteDbService;
+            if (sqliteDbService == null)
+            {
+                ShowErrorMessage("The database path cannot be set.");
+                return;
+            }
+
+            string databaseFilePath = DatabaseFileTextBox.Text;
+            if (!IsValidFilePath(databaseFilePath))
+            {
+                ShowErrorMessage("The database you have set does not exist.");
+                return;
+            }
+
+            sqliteDbService.SetPath(databaseFilePath);
+            MessageBox.Show("The database path was set successfully.", "Database set", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private bool IsValidFilePath(string path)
+        {
+            try
+            {
+                _ = Path.GetFullPath(path);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
     }
 }

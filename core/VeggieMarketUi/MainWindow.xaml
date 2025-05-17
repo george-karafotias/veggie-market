@@ -117,8 +117,7 @@
                 </DataGrid>
             </StackPanel>
         </TabItem>
-
-        <TabItem Header="Data Analysis" Height="23" VerticalAlignment="Top">
+    <TabItem Header="Data Analysis" Height="23" VerticalAlignment="Top">
             <StackPanel x:Name="DataAnalysisContainer">
                 <StackPanel x:Name="DataAnalysisPleaseWaitPanel" HorizontalAlignment="Center" Orientation="Vertical" Visibility="Collapsed">
                     <Label HorizontalAlignment="Center" FontSize="16" Margin="0,0,0,20">Please wait...</Label>
@@ -259,5 +258,13 @@
                 </StackPanel>
             </StackPanel>
         </TabItem>
+
+        <TabItem Header="Settings">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                <Label>Database file:</Label>
+                <TextBox x:Name="DatabaseFileTextBox" Width="600"></TextBox>
+                <Button Click="SetDatabaseButton_Click" Style="{StaticResource GoButton}">Set Database</Button>
+            </StackPanel>
+        </TabItem>    
     </TabControl>
 </Window>

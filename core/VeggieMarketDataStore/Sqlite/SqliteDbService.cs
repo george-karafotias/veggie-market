@@ -7,18 +7,23 @@ namespace VeggieMarketDataStore
 {
     public class SqliteDbService : DbService
     {
-        private const string CONNECTION_STRING = @"Data Source=C:\Stuff\Projects\veggie\db\veggie.sqlite";
+        private string connectionString = @"Data Source=C:\Stuff\Projects\veggie\db\veggie.sqlite";
 
         public SqliteDbService(ILogger logger) : base(logger)
         {
             
         }
 
+        public void SetPath(string path)
+        {
+            this.connectionString = @"Data Source=" + @path;
+        }
+
         public override DbConnection OpenConnection()
         {
             if (connection == null)
             {
-                connection = new SQLiteConnection(CONNECTION_STRING);
+                connection = new SQLiteConnection(connectionString);
                 connection.Open();
             }
             return connection;
