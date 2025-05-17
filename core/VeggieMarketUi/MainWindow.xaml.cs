@@ -636,6 +636,7 @@ namespace VeggieMarketUi
             }
 
             AvailablePricesDataGrid.ItemsSource = pricePeriods;
+            AvailablePricesDataGrid.Visibility = Visibility.Visible;
         }
 
         private void AddToSelectedMarketsButton_Click(object sender, RoutedEventArgs e)

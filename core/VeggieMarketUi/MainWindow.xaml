@@ -108,7 +108,7 @@
         <TabItem Header="Available Data">
             <StackPanel Orientation="Vertical">
                 <Button x:Name="GetAvailableDataButton" Style="{StaticResource GoButton}" Margin="0,0,0,20" HorizontalAlignment="Left" Click="GetAvailableDataButton_Click">Get Available Data</Button>
-                <DataGrid x:Name="AvailablePricesDataGrid" AutoGenerateColumns="False" IsReadOnly="True">
+                <DataGrid x:Name="AvailablePricesDataGrid" AutoGenerateColumns="False" IsReadOnly="True" Visibility="Collapsed">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Market" Binding="{Binding MarketName}"/>
                         <DataGridTextColumn Header="Start Date" Binding="{Binding StartDate}"/>
