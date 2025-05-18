@@ -14,7 +14,7 @@ namespace VeggieDataExporter
     {
         private ILogger logger;
 
-        public JsonProductPriceExporter(ILogger logger)
+        public JsonProductPriceExporter(ILogger logger = null)
         {
             this.logger = logger;
         }
@@ -23,7 +23,7 @@ namespace VeggieDataExporter
         {
             if (productPrices == null)
             {
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "No product prices to export", LogType.Error);
+                Log("No product prices to export", LogType.Error);
                 return false;
             }
 
@@ -32,7 +32,7 @@ namespace VeggieDataExporter
             List<string> selectedPriceTypes = GetSelectedPriceTypes(priceTypes);
             if (selectedPriceTypes.Count == 0)
             {
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "The selected price types are not valid", LogType.Error);
+                Log("The selected price types are not valid", LogType.Error);
                 return false;
             }
 
@@ -44,7 +44,7 @@ namespace VeggieDataExporter
             foreach (KeyValuePair<int, List<ProductPrice>> productPriceYearEntry in productPricesPerYear)
             {
                 int year = productPriceYearEntry.Key;
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Exporting year " + year + "...", LogType.Info);
+                Log("Exporting year " + year + "...", LogType.Info);
                 output.Append(CreateJsonKey(year.ToString()));
                 output.Append("[");
 
@@ -78,12 +78,12 @@ namespace VeggieDataExporter
             {
                 string fullPath = Path.GetFullPath(fileName + ".json");
                 System.IO.File.WriteAllText(fileName + ".json", BeautifyJson(outputJson));
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Successfully exported " + fullPath, LogType.Info);
+                Log("Successfully exported " + fullPath, LogType.Info);
                 return true;
             }
             catch (Exception ex)
             {
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "An exception has occurred while exporting the data. Ex: " + ex.StackTrace, LogType.Error);
+                Log("An exception has occurred while exporting the data. Ex: " + ex.StackTrace, LogType.Error);
                 return false;
             }
         }
@@ -141,6 +141,12 @@ namespace VeggieDataExporter
                 }
             }
             return selectedPriceTypes;
+        }
+
+        private void Log(string message, LogType logType)
+        {
+            if (this.logger == null) return;
+            logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, message, logType);
         }
     }
 }

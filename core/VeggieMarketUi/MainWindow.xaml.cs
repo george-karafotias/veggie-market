@@ -38,7 +38,7 @@ namespace VeggieMarketUi
         private Dictionary<string, PriceScraper> marketPriceScraperMap;
         private TextBoxLogger importDataTextBoxLogger;
         private TextBoxLogger downloadDataTextBoxLogger;
-        private TextBoxLogger dataAnalysisTextBoxLogger;
+        //private TextBoxLogger dataAnalysisTextBoxLogger;
         private PriceRetrievalParameters priceRetrievalParameters;
         private List<ProductPrice> retrievedPrices;
 
@@ -48,7 +48,7 @@ namespace VeggieMarketUi
 
             importDataTextBoxLogger = new TextBoxLogger(LogTextBox);
             downloadDataTextBoxLogger = new TextBoxLogger(DownloadLogTextBox);
-            dataAnalysisTextBoxLogger = new TextBoxLogger(DataAnalysisLogTextBox);
+            //dataAnalysisTextBoxLogger = new TextBoxLogger(DataAnalysisLogTextBox);
 
             string sqliteDatabasePath = ConfigurationManager.AppSettings["SqliteDatabasePath"];
             if (!string.IsNullOrEmpty(sqliteDatabasePath))
@@ -511,7 +511,7 @@ namespace VeggieMarketUi
 
         private void Export(List<string> selectedPriceTypes)
         {
-            JsonProductPriceExporter jsonProductPriceExporter = new JsonProductPriceExporter(dataAnalysisTextBoxLogger);
+            JsonProductPriceExporter jsonProductPriceExporter = new JsonProductPriceExporter();
             foreach (Product product in priceRetrievalParameters.Products)
             {
                 jsonProductPriceExporter.ExportProductPrices(product.ProductName, retrievedPrices, selectedPriceTypes);
@@ -573,13 +573,13 @@ namespace VeggieMarketUi
             }
 
             HidePleaseWaitForDataAnalysis();
-            DataAnalysisLogTextBox.Visibility = Visibility.Collapsed;
+            //DataAnalysisLogTextBox.Visibility = Visibility.Collapsed;
             ShowContentContainer();
         }
 
         private void ShowContentContainer()
         {
-            ContentContainer.Height = this.Height;
+            ContentContainer.Height = this.Height - SystemParameters.CaptionHeight - (SystemParameters.BorderWidth * 2) - DataAnalysisTab.ActualHeight - DataAnalysisTab.Padding.Top - DataAnalysisTab.Padding.Bottom - Math.Abs(DataAnalysisTab.Margin.Top) - Math.Abs(DataAnalysisTab.Margin.Bottom);
             ContentContainer.Visibility = Visibility.Visible;
         }
 
@@ -629,7 +629,7 @@ namespace VeggieMarketUi
             }
 
             PriceRetrievalParameters retrievalParameters = ConstructRetrievalParameters();
-            DataAnalysisLogTextBox.Visibility = Visibility.Visible;
+            //DataAnalysisLogTextBox.Visibility = Visibility.Visible;
             ShowContentContainer();
             if (!retrievalParameters.IsSame(priceRetrievalParameters))
             {

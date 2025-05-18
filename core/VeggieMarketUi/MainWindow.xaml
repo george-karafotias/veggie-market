@@ -7,7 +7,7 @@
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:local="clr-namespace:VeggieMarketUi"
         mc:Ignorable="d"
-        Title="Veggie Prices" Height="768" Width="1024" WindowState="Maximized">
+        Title="Veggie Prices" Height="768" Width="1024" WindowState="Maximized" ResizeMode="NoResize">
     <Window.Resources>
         <ResourceDictionary>
             <!-- Believe it or not the next line fixes a bug MS acknowledges -->
@@ -118,7 +118,7 @@
             </StackPanel>
         </TabItem>
         
-    <TabItem Header="Data Analysis" VerticalAlignment="Top">
+    <TabItem x:Name="DataAnalysisTab" Header="Data Analysis" VerticalAlignment="Top">
             <StackPanel x:Name="DataAnalysisContainer">
                 <StackPanel x:Name="DataAnalysisPleaseWaitPanel" HorizontalAlignment="Center" Orientation="Vertical" Visibility="Collapsed">
                     <Label HorizontalAlignment="Center" FontSize="16" Margin="0,0,0,20">Please wait...</Label>
@@ -247,12 +247,7 @@
                         </StackPanel>
 
                         <ScrollViewer x:Name="ContentContainer" Grid.Column="1" VerticalScrollBarVisibility="Visible" Visibility="Collapsed">
-                            <StackPanel Orientation="Vertical">
-                                <TextBox TextWrapping="Wrap" Height="450" IsReadOnly="True" VerticalScrollBarVisibility="Auto"  AcceptsReturn="True" Name="DataAnalysisLogTextBox" Visibility="Collapsed"/>
-                                <Grid>
-                                    <StackPanel x:Name="GraphContainer" Orientation="Vertical">
-                                    </StackPanel>
-                                </Grid>
+                            <StackPanel x:Name="GraphContainer" Orientation="Vertical">
                             </StackPanel>
                         </ScrollViewer>
                     </Grid>
