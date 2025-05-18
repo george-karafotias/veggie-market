@@ -52,8 +52,6 @@ namespace VeggieMarketDataStore
 
         public ILogger Logger { get { return logger; } set { this.logger = value; } }
 
-        public DbService DbService { get { return dbService; } }
-
         private void CreateDatabase()
         {
             dbService.CreateDatabase();

@@ -117,7 +117,8 @@
                 </DataGrid>
             </StackPanel>
         </TabItem>
-    <TabItem Header="Data Analysis" Height="23" VerticalAlignment="Top">
+        
+    <TabItem Header="Data Analysis" VerticalAlignment="Top">
             <StackPanel x:Name="DataAnalysisContainer">
                 <StackPanel x:Name="DataAnalysisPleaseWaitPanel" HorizontalAlignment="Center" Orientation="Vertical" Visibility="Collapsed">
                     <Label HorizontalAlignment="Center" FontSize="16" Margin="0,0,0,20">Please wait...</Label>

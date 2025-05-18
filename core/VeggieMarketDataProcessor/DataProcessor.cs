@@ -77,7 +77,7 @@ namespace VeggieMarketDataProcessor
 
             for (DateTime date = begin; date <= end; date = date.AddDays(1))
             {
-                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Processing date " + date.ToString(), LogType.Info);
+                logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Processing date " + date.ToString() + " for product " + product.ProductName, LogType.Info);
 
                 ProductPrice productPrice = ProductPriceExists(productPrices, date);
                 if (productPrice == null)

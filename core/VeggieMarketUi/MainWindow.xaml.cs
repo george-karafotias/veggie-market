@@ -16,6 +16,8 @@ using VeggieMarketScraper;
 using VeggieMarketUi.Models;
 using VeggieDataExporter;
 using static VeggieMarketUi.ChartCreator;
+using System.Configuration;
+using System.Reflection;
 
 namespace VeggieMarketUi
 {
@@ -47,13 +49,27 @@ namespace VeggieMarketUi
             importDataTextBoxLogger = new TextBoxLogger(LogTextBox);
             downloadDataTextBoxLogger = new TextBoxLogger(DownloadLogTextBox);
             dataAnalysisTextBoxLogger = new TextBoxLogger(DataAnalysisLogTextBox);
-            InitializeData();
+
+            string sqliteDatabasePath = ConfigurationManager.AppSettings["SqliteDatabasePath"];
+            if (!string.IsNullOrEmpty(sqliteDatabasePath))
+            {
+                if (IsValidFilePath(sqliteDatabasePath))
+                {
+                    DatabaseFileTextBox.Text = sqliteDatabasePath;
+                    InitializeDatabase();
+                    RefreshData();
+                }
+            }
         }
 
-        private void InitializeData()
+        private void InitializeDatabase()
         {
-            dataStorageService = DataStorageService.GetInstance(new SqliteDbService(importDataTextBoxLogger), importDataTextBoxLogger);
+            SqliteDbService sqliteDbService = new SqliteDbService(DatabaseFileTextBox.Text, importDataTextBoxLogger);
+            dataStorageService = DataStorageService.GetInstance(sqliteDbService, importDataTextBoxLogger);
+        }
 
+        private void RefreshData()
+        {
             Market[] markets = dataStorageService.MarketDbService.GetMarkets();
             List<string> marketNames = RetrieveMarketNames(markets);
             PopulateMarketReaderMap(marketNames);
@@ -313,7 +329,7 @@ namespace VeggieMarketUi
             ShowErrorMessage("There is no way to insert the selected prices to the database.");
         }
 
-        private void InsertPricesToDatabase(string marketName, string[] priceFiles, bool processPrices, ILogger logger)
+        private async void InsertPricesToDatabase(string marketName, string[] priceFiles, bool processPrices, ILogger logger)
         {
             MarketDataReader marketDataReader = GetSelectedMarketDataReader(marketName);
             if (marketDataReader == null)
@@ -325,7 +341,7 @@ namespace VeggieMarketUi
             dataStorageService.Logger = logger;
             DataProcessor dataProcessor = new DataProcessor(dataStorageService);
 
-            Task.Run(() =>
+            await Task.Run(() =>
             {
                 DateTime[] days = marketDataReader.ReadMultipleDays(priceFiles);
                 if (processPrices)
@@ -333,6 +349,9 @@ namespace VeggieMarketUi
                     dataProcessor.ProcessProductPrices(marketName, days);
                 }
             });
+
+            logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Process completed", LogType.Info);
+            RefreshData();
         }
 
         private void DownloadPrices(string marketName, DateTime fromDate, DateTime toDate, string downloadFolder)
@@ -350,7 +369,7 @@ namespace VeggieMarketUi
             });
         }
 
-        private void DownloadPricesAndInsertToDatabase(
+        private async void DownloadPricesAndInsertToDatabase(
             string marketName, 
             DateTime fromDate, 
             DateTime toDate, 
@@ -376,7 +395,7 @@ namespace VeggieMarketUi
             marketDataReader.Logger = logger;
             DataProcessor dataProcessor = new DataProcessor(dataStorageService);
 
-            Task.Run(() =>
+            await Task.Run(() =>
             {
                 string[] priceFiles = priceScraper.DownloadPeriod(fromDate, toDate, downloadFolder);
                 DateTime[] days = marketDataReader.ReadMultipleDays(priceFiles);
@@ -385,6 +404,9 @@ namespace VeggieMarketUi
                     dataProcessor.ProcessProductPrices(marketName, days);
                 }
             });
+
+            logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Process completed", LogType.Info);
+            RefreshData();
         }
 
         private PriceRetrievalParameters ConstructRetrievalParameters()
@@ -784,22 +806,28 @@ namespace VeggieMarketUi
 
         private void SetDatabaseButton_Click(object sender, RoutedEventArgs e)
         {
-            SqliteDbService sqliteDbService = dataStorageService.DbService as SqliteDbService;
-            if (sqliteDbService == null)
-            {
-                ShowErrorMessage("The database path cannot be set.");
-                return;
-            }
-
-            string databaseFilePath = DatabaseFileTextBox.Text;
-            if (!IsValidFilePath(databaseFilePath))
+            if (!IsValidFilePath(DatabaseFileTextBox.Text))
             {
                 ShowErrorMessage("The database you have set does not exist.");
                 return;
             }
 
-            sqliteDbService.SetPath(databaseFilePath);
-            MessageBox.Show("The database path was set successfully.", "Database set", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                InitializeDatabase();
+                RefreshData();
+
+                var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                config.AppSettings.Settings["SqliteDatabasePath"].Value = DatabaseFileTextBox.Text;
+                config.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection("appSettings");
+
+                MessageBox.Show("The database was set successfully.", "", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("The database cannot be opened: " + ex.ToString());
+            }
         }
 
         private bool IsValidFilePath(string path)

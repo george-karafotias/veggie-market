@@ -46,10 +46,6 @@ namespace VeggieMarketDataStore.DbInterfaces
             {
                 logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, ex.StackTrace, LogType.Exception);
             }
-            //finally
-            //{
-            //    connection?.Close();
-            //}
         }
 
         public bool Insert(string query, Dictionary<string, object> parameters)
@@ -106,8 +102,6 @@ namespace VeggieMarketDataStore.DbInterfaces
                 reader.Dispose();
                 reader = null;
             }
-            //connection.Close();
-            //connection.Dispose();
         }
 
         public Market CreateMarket(DbDataReader reader)

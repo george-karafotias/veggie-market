@@ -8,13 +8,14 @@ namespace VeggieMarketDataStore
     public class SqliteDbService : DbService
     {
         private string connectionString = @"Data Source=C:\Stuff\Projects\veggie\db\veggie.sqlite";
+        //private string connectionString = "";
 
         public SqliteDbService(ILogger logger) : base(logger)
         {
             
         }
 
-        public void SetPath(string path)
+        public SqliteDbService(string path, ILogger logger) : base(logger)
         {
             this.connectionString = @"Data Source=" + @path;
         }
