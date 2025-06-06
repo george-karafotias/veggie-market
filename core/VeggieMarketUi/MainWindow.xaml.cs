@@ -38,7 +38,6 @@ namespace VeggieMarketUi
         private Dictionary<string, PriceScraper> marketPriceScraperMap;
         private TextBoxLogger importDataTextBoxLogger;
         private TextBoxLogger downloadDataTextBoxLogger;
-        //private TextBoxLogger dataAnalysisTextBoxLogger;
         private PriceRetrievalParameters priceRetrievalParameters;
         private List<ProductPrice> retrievedPrices;
 
@@ -48,7 +47,6 @@ namespace VeggieMarketUi
 
             importDataTextBoxLogger = new TextBoxLogger(LogTextBox);
             downloadDataTextBoxLogger = new TextBoxLogger(DownloadLogTextBox);
-            //dataAnalysisTextBoxLogger = new TextBoxLogger(DataAnalysisLogTextBox);
 
             string sqliteDatabasePath = ConfigurationManager.AppSettings["SqliteDatabasePath"];
             if (!string.IsNullOrEmpty(sqliteDatabasePath))
@@ -56,20 +54,17 @@ namespace VeggieMarketUi
                 if (IsValidFilePath(sqliteDatabasePath))
                 {
                     DatabaseFileTextBox.Text = sqliteDatabasePath;
-                    InitializeDatabase();
-                    RefreshData();
+                    InitializeData();
+                    RefreshDataAnalysis();
                 }
             }
         }
 
-        private void InitializeDatabase()
+        private void InitializeData()
         {
             SqliteDbService sqliteDbService = new SqliteDbService(DatabaseFileTextBox.Text, importDataTextBoxLogger);
             dataStorageService = DataStorageService.GetInstance(sqliteDbService, importDataTextBoxLogger);
-        }
 
-        private void RefreshData()
-        {
             Market[] markets = dataStorageService.MarketDbService.GetMarkets();
             List<string> marketNames = RetrieveMarketNames(markets);
             PopulateMarketReaderMap(marketNames);
@@ -79,7 +74,11 @@ namespace VeggieMarketUi
             ImportDataMarketsComboBox.SelectedIndex = 0;
             DownloadDataMarketsComboBox.ItemsSource = marketNames;
             DownloadDataMarketsComboBox.SelectedIndex = 0;
+        }
 
+        private void RefreshDataAnalysis()
+        {
+            Market[] markets = dataStorageService.MarketDbService.GetMarkets();
             PopulateMarketsComboBox(AvailableMarketsListBox, markets);
             InitMarketsComboBox(SelectedMarketsListBox);
 
@@ -351,7 +350,7 @@ namespace VeggieMarketUi
             });
 
             logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Process completed", LogType.Info);
-            RefreshData();
+            RefreshDataAnalysis();
         }
 
         private void DownloadPrices(string marketName, DateTime fromDate, DateTime toDate, string downloadFolder)
@@ -406,7 +405,7 @@ namespace VeggieMarketUi
             });
 
             logger.Log(GetType().Name, MethodBase.GetCurrentMethod().Name, "Process completed", LogType.Info);
-            RefreshData();
+            RefreshDataAnalysis();
         }
 
         private PriceRetrievalParameters ConstructRetrievalParameters()
@@ -573,7 +572,6 @@ namespace VeggieMarketUi
             }
 
             HidePleaseWaitForDataAnalysis();
-            //DataAnalysisLogTextBox.Visibility = Visibility.Collapsed;
             ShowContentContainer();
         }
 
@@ -629,7 +627,6 @@ namespace VeggieMarketUi
             }
 
             PriceRetrievalParameters retrievalParameters = ConstructRetrievalParameters();
-            //DataAnalysisLogTextBox.Visibility = Visibility.Visible;
             ShowContentContainer();
             if (!retrievalParameters.IsSame(priceRetrievalParameters))
             {
@@ -814,8 +811,8 @@ namespace VeggieMarketUi
 
             try
             {
-                InitializeDatabase();
-                RefreshData();
+                InitializeData();
+                RefreshDataAnalysis();
 
                 var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
                 config.AppSettings.Settings["SqliteDatabasePath"].Value = DatabaseFileTextBox.Text;
