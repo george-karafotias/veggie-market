@@ -24,6 +24,7 @@ import { HomeComponent } from './home/home.component';
 import { MenuComponent } from './menu/menu.component';
 import { ProductsComponent } from './products/products.component';
 import { ProductComponent } from './product/product.component';
+import { DataAnalysisComponent } from './data-analysis/data-analysis.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { ProductComponent } from './product/product.component';
     HomeComponent,
     MenuComponent,
     ProductsComponent,
-    ProductComponent
+    ProductComponent,
+    DataAnalysisComponent
   ],
   imports: [
     BrowserModule,
