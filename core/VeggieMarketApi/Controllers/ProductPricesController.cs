@@ -18,10 +18,30 @@ namespace VeggieMarketApi.Controllers
         }
 
         [HttpGet]
+        [Route(ROUTE_URL)]
+        public IEnumerable<ProductPriceType> GetProductPrices()
+        {
+            List<ProductPriceType> priceTypes = new List<ProductPriceType>();
+            foreach (KeyValuePair<string, string> priceType in ProductPrice.GetPriceTypes())
+            {
+                priceTypes.Add(new ProductPriceType(priceType.Value, priceType.Key));
+            }
+            return priceTypes;
+        }
+
+        [HttpGet]
         [Route(ROUTE_URL + "{productId}/{fromDate}/{toDate}")]
         public IEnumerable<ProductPrice> GetProductPrices(int productId, string fromDate, string toDate)
         {
             IEnumerable<ProductPrice> productPrices = dataStorageService.ProcessedProductPriceDbService.GetProcessedProductPrices(productId, ConvertFormattedDate(fromDate), ConvertFormattedDate(toDate));
+            return productPrices;
+        }
+
+        [HttpGet]
+        [Route(ROUTE_URL + "{productId}/{marketId}/{fromDate}/{toDate}")]
+        public IEnumerable<ProductPrice> GetProductPrices(int productId, int marketId, string fromDate, string toDate)
+        {
+            IEnumerable<ProductPrice> productPrices = dataStorageService.ProcessedProductPriceDbService.GetProcessedProductMarketPrices(productId, marketId, ConvertFormattedDate(fromDate), ConvertFormattedDate(toDate));
             return productPrices;
         }
 

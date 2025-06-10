@@ -5,6 +5,7 @@ import { Product, ProductPrice } from '../products/product.interface';
 import { ProductPricesService } from '../productPrices.service';
 import { PriceGraphPreparationService } from '../price-graph-preparation.service';
 import { PriceGraph, PriceGraphCode } from '../models/price-graph.interface';
+import { DateFormatService } from '../date-format.service';
 
 @Component({
   selector: 'product',
@@ -26,7 +27,8 @@ export class ProductComponent implements OnInit {
     private route: ActivatedRoute,
     private productService: ProductService,
     private productPricesService: ProductPricesService,
-    private priceGraphPreparationService: PriceGraphPreparationService
+    private priceGraphPreparationService: PriceGraphPreparationService,
+    private dateFormatService: DateFormatService
   ) { }
 
   ngOnInit() {
@@ -68,17 +70,6 @@ export class ProductComponent implements OnInit {
     ];
   }
 
-  private formatDay(date: Date | undefined): string {
-    if (date === undefined) return '';
-    const year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-    let dd = day < 10 ? '0' + day : day.toString();
-    let mm = month < 10 ? '0' + month : month.toString();
-    const formattedToday = dd + mm + year;
-    return formattedToday;
-  }
-
   private resetGraphSelections() {
     this.selectedPriceGraphs = [];
     this.graphData = undefined;
@@ -89,8 +80,8 @@ export class ProductComponent implements OnInit {
     setTimeout(() => {
       if (!this.product) return;
       if (this.fromDate === undefined && this.toDate === undefined) return;
-      let formattedFromDate = this.formatDay(this.fromDate);
-      let formattedToDate = this.formatDay(this.toDate);
+      let formattedFromDate = this.dateFormatService.formatDay(this.fromDate);
+      let formattedToDate = this.dateFormatService.formatDay(this.toDate);
       this.productPricesService.fetchProductPrices(this.product.ProductId, formattedFromDate, formattedToDate)
         .subscribe(
           (response) => {

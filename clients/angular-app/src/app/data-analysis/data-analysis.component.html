@@ -1,1 +1,47 @@
-<p>data-analysis works!</p>
+<div class="container">
+    <div class="column">
+        <div>
+            <h3>Select Markets</h3>
+            <p-multiSelect [options]="markets" [(ngModel)]="selectedMarkets" optionLabel="MarketName"
+                placeholder="Available Markets" (onChange)="updatePlotGroups()" />
+        </div>
+
+        <div>
+            <h3>Select Products</h3>
+            <p-pickList [source]="products" [target]="selectedProducts" [dragdrop]="false" [responsive]="true"
+                [showSourceControls]="false" [showTargetControls]="false" [sourceStyle]="{ height: '15rem' }"
+                [targetStyle]="{ height: '15rem' }" breakpoint="1400px" scrollHeight="15rem" filterBy="ProductName"
+                sourceFilterPlaceholder="Search by name" (onMoveToSource)="updatePlotGroups()"
+                (onMoveToTarget)="updatePlotGroups()" (onMoveAllToSource)="updatePlotGroups()"
+                (onMoveAllToTarget)="updatePlotGroups()">
+                <ng-template pTemplate="item" let-item>
+                    {{ item.ProductName }}
+                </ng-template>
+            </p-pickList>
+        </div>
+
+        <div>
+            <h3>Select Prices</h3>
+            <p-multiSelect [options]="productPriceTypes" [(ngModel)]="selectedProductPriceTypes"
+                optionLabel="ProductPriceTypeName" placeholder="Available Prices" (onChange)="updatePlotGroups()" />
+        </div>
+
+        <div>
+            <h3>Select Period</h3>
+            <p-calendar [(ngModel)]="fromDate" placeholder="From Date" dateFormat="dd/mm/yy"></p-calendar>
+            <p-calendar [(ngModel)]="toDate" placeholder="To Date" dateFormat="dd/mm/yy"></p-calendar>
+        </div>
+
+        <div>
+            <h3>Analyze and plot</h3>
+            <p-button label="Plot" (click)="plot()"></p-button>
+            <!-- <p-multiSelect [options]="selectedPlotGroups" placeholder="Group by" /> -->
+            <!-- <p-listbox [options]="selectedPlotGroups" [(ngModel)]="selectedPlotGroup" /> -->
+            <p-dropdown [options]="selectedPlotGroups" [(ngModel)]="selectedPlotGroup"
+                placeholder="Group by"></p-dropdown>
+        </div>
+    </div>
+
+    <div class="column">
+    </div>
+</div>

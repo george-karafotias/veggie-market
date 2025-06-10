@@ -76,6 +76,7 @@
     <Compile Include="DbServices\ProductDbService.cs" />
     <Compile Include="Models\DatePeriod.cs" />
     <Compile Include="Models\MarketAvailableData.cs" />
+    <Compile Include="Models\ProductPriceType.cs" />
     <Compile Include="Sqlite\SqliteDbService.cs" />
     <Compile Include="Models\Market.cs" />
     <Compile Include="Models\Product.cs" />

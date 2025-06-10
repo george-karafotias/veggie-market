@@ -1,0 +1,27 @@
+.container {
+    display: flex;
+    /*gap: 1rem;*/
+}
+
+.column:first-child {
+    width: 50%;
+}
+
+.column:last-child {
+    width: 50%;
+}
+
+/* Responsive: Stack columns on smaller screens */
+@media (max-width: 600px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .column {
+        width: 100%;
+    }
+}
+
+::ng-deep .p-listbox {
+    display: inline-block;
+}

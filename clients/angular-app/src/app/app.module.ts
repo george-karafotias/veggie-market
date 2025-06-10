@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -17,8 +17,8 @@ import { TabViewModule } from 'primeng/tabview';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SplitterModule } from 'primeng/splitter';
-/* import { Chart } from 'chart.js'
-import 'chartjs-adapter-moment'; */
+import { ListboxModule } from 'primeng/listbox';
+import { PickListModule } from 'primeng/picklist';
 
 import { HomeComponent } from './home/home.component';
 import { MenuComponent } from './menu/menu.component';
@@ -47,6 +47,8 @@ import { DataAnalysisComponent } from './data-analysis/data-analysis.component';
     InputTextModule,
     DropdownModule,
     MultiSelectModule,
+    ListboxModule,
+    PickListModule,
     SplitterModule,
     TabViewModule,
     ChartModule,

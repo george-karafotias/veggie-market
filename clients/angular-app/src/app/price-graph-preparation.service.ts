@@ -1,11 +1,18 @@
 import { Injectable } from "@angular/core";
 import { ProductPrice } from "./products/product.interface";
 import { Graph, PriceGraph, PriceGraphCode } from "./models/price-graph.interface";
+import { PlotGroup, PriceRetrievalParameters } from "./models/data-analysis.interface";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PriceGraphPreparationService {
+
+  public prepareLineGraphs(productPrices: ProductPrice[], priceRetrievalParameters: PriceRetrievalParameters, groupBy: PlotGroup | undefined): Graph[] | undefined {
+
+
+    return undefined;
+  }
 
   public prepareLineGraph(productPrices: ProductPrice[], selectedPriceGraphs: PriceGraph[]): Graph | undefined {
     if (!productPrices || !selectedPriceGraphs) return undefined;

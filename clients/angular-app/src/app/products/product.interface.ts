@@ -16,6 +16,11 @@ export interface Market {
     MarketName: string;
 }
 
+export interface ProductPriceType {
+    ProductPriceTypeId: string;
+    ProductPriceTypeName: string;
+}
+
 export interface ProductPrice {
     Product?: Product;
     ProductDate: number;
