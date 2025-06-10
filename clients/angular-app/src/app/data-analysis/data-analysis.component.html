@@ -34,7 +34,7 @@
 
         <div>
             <h3>Analyze and plot</h3>
-            <p-button label="Plot" (click)="plot()"></p-button>
+            <p-button label="Plot" (click)="retrievePricesAndPlot()"></p-button>
             <!-- <p-multiSelect [options]="selectedPlotGroups" placeholder="Group by" /> -->
             <!-- <p-listbox [options]="selectedPlotGroups" [(ngModel)]="selectedPlotGroup" /> -->
             <p-dropdown [options]="selectedPlotGroups" [(ngModel)]="selectedPlotGroup"
@@ -43,5 +43,6 @@
     </div>
 
     <div class="column">
+        <p-chart *ngFor="let graph of graphs" type="line" [data]="graph.data" />
     </div>
 </div>

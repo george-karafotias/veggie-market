@@ -5,7 +5,7 @@ import { Product, ProductPrice } from '../products/product.interface';
 import { ProductPricesService } from '../productPrices.service';
 import { PriceGraphPreparationService } from '../price-graph-preparation.service';
 import { PriceGraph, PriceGraphCode } from '../models/price-graph.interface';
-import { DateFormatService } from '../date-format.service';
+import { DateHelperService } from '../date-format.service';
 
 @Component({
   selector: 'product',
@@ -28,7 +28,7 @@ export class ProductComponent implements OnInit {
     private productService: ProductService,
     private productPricesService: ProductPricesService,
     private priceGraphPreparationService: PriceGraphPreparationService,
-    private dateFormatService: DateFormatService
+    private dateFormatService: DateHelperService
   ) { }
 
   ngOnInit() {
