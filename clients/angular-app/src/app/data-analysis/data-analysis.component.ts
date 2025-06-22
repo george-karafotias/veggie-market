@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { Market, Product, ProductPrice, ProductPriceType } from '../products/product.interface';
 import { MarketService } from '../market.service';
 import { ProductService } from '../product.service';
@@ -47,7 +48,6 @@ export class DataAnalysisComponent implements OnInit {
       .subscribe(
         (response) => {
           this.markets = response;
-          console.log(this.markets);
         },
         (error) => {
           console.error(error);
@@ -60,7 +60,6 @@ export class DataAnalysisComponent implements OnInit {
       .subscribe(
         (response) => {
           this.products = response;
-          console.log(this.products);
         },
         (error) => {
           console.error(error);
@@ -73,7 +72,6 @@ export class DataAnalysisComponent implements OnInit {
       .subscribe(
         (response) => {
           this.productPriceTypes = response;
-          console.log(this.productPriceTypes);
         },
         (error) => {
           console.error(error);
@@ -92,44 +90,51 @@ export class DataAnalysisComponent implements OnInit {
     if (this.selectedProductPriceTypes.length > 1) this.selectedPlotGroups.push(PlotGroup.Price);
   }
 
-  retrievePricesAndPlot() {
+  async retrievePrices(): Promise<void> {
     if (!this.selectedMarkets || this.selectedMarkets.length === 0) return;
     if (!this.selectedProducts || this.selectedProducts.length === 0) return;
     if (this.fromDate === undefined && this.toDate === undefined) return;
+
+    this.prices = [];
     let formattedFromDate = this.dateFormatService.formatDay(this.fromDate);
     let formattedToDate = this.dateFormatService.formatDay(this.toDate);
 
-    setTimeout(() => {
-      for (let i = 0; i < this.selectedMarkets.length; i++) {
-        const selectedMarket = this.selectedMarkets[i];
-        for (let j = 0; j < this.selectedProducts.length; j++) {
-          const selectedProduct = this.selectedProducts[j];
+    for (let i = 0; i < this.selectedMarkets.length; i++) {
+      const selectedMarket = this.selectedMarkets[i];
 
-          this.productPricesService.fetchProductMarketPrices(selectedMarket.MarketId, selectedProduct.ProductId, formattedFromDate, formattedToDate)
-            .subscribe(
-              (response) => {
-                response.forEach(productPrice => {
-                  this.prices.push(productPrice);
-                });
-                console.log(response);
-                if (!response || response.length === 0) return;
+      for (let j = 0; j < this.selectedProducts.length; j++) {
+        const selectedProduct = this.selectedProducts[j];
 
-                const priveRetrievalParameters: PriceRetrievalParameters = {
-                  selectedMarkets: this.selectedMarkets,
-                  selectedProducts: this.selectedProducts,
-                  selectedPrices: this.selectedProductPriceTypes,
-                  fromDate: this.fromDate,
-                  toDate: this.toDate
-                }
+        try {
+          // Convert Observable to Promise and await response
+          const response = await firstValueFrom(
+            this.productPricesService.fetchProductMarketPrices(
+              selectedMarket.MarketId, selectedProduct.ProductId, formattedFromDate, formattedToDate
+            )
+          );
 
-                this.graphs = this.priceGraphPreparationService.prepareLineGraphs(response, priveRetrievalParameters, this.selectedPlotGroup);
-              },
-              (error) => {
-                console.error(error);
-              }
-            );
+          response.forEach(productPrice => {
+            this.prices.push(productPrice);
+          });
+
+        } catch (error) {
+          console.error("Error fetching prices:", error);
         }
       }
-    });
+    }
+  }
+
+  async retrievePricesAndPlot() {
+    const priveRetrievalParameters: PriceRetrievalParameters = {
+      selectedMarkets: this.selectedMarkets,
+      selectedProducts: this.selectedProducts,
+      selectedPrices: this.selectedProductPriceTypes,
+      fromDate: this.fromDate,
+      toDate: this.toDate
+    }
+
+    await this.retrievePrices();
+
+    this.graphs = this.priceGraphPreparationService.prepareLineGraphs(this.prices, priveRetrievalParameters, this.selectedPlotGroup);
   }
 }

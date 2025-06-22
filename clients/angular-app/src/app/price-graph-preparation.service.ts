@@ -2,19 +2,31 @@ import { Injectable } from "@angular/core";
 import { Market, Product, ProductPrice } from "./products/product.interface";
 import { Graph, PriceGraph, PriceGraphCode } from "./models/price-graph.interface";
 import { PlotGroup, PriceRetrievalParameters } from "./models/data-analysis.interface";
+import { DateHelperService } from "./date-format.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PriceGraphPreparationService {
 
+  constructor(private dateHelperService: DateHelperService) { }
+
   public prepareLineGraphs(productPrices: ProductPrice[], priceRetrievalParameters: PriceRetrievalParameters, groupBy: PlotGroup | undefined): Graph[] {
     if (!productPrices || !priceRetrievalParameters.selectedPrices) return [];
 
-    let labels = [];
+    /* let labels = [];
     for (let i = 0; i < productPrices.length; i++) {
       labels.push(productPrices[i].FormattedProductDate);
+    } */
+
+    let labels: string[] = [];
+    let currentDate = new Date(this.ensureDate(priceRetrievalParameters.fromDate));
+    const endDate = this.ensureDate(priceRetrievalParameters.toDate);
+    while (currentDate <= endDate) {
+      labels.push(this.dateHelperService.formatDay(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
     }
+
     let lineSeriesCollection = this.createLineGraph(productPrices, priceRetrievalParameters);
 
     const graphData = {
@@ -26,6 +38,10 @@ export class PriceGraphPreparationService {
       data: graphData,
       options: graphOptions
     }];
+  }
+
+  private ensureDate(date: Date | undefined): Date {
+    return date ?? new Date();
   }
 
   public prepareLineGraph(productPrices: ProductPrice[], selectedPriceGraphs: PriceGraph[]): Graph | undefined {
