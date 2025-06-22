@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { Market, Product, ProductPrice } from "./products/product.interface";
 import { Graph, PriceGraph, PriceGraphCode } from "./models/price-graph.interface";
 import { PlotGroup, PriceRetrievalParameters } from "./models/data-analysis.interface";
-import { DateHelperService } from "./date-format.service";
+import { DateHelperService } from "./date-helper.service";
 
 @Injectable({
   providedIn: 'root'
@@ -13,11 +13,6 @@ export class PriceGraphPreparationService {
 
   public prepareLineGraphs(productPrices: ProductPrice[], priceRetrievalParameters: PriceRetrievalParameters, groupBy: PlotGroup | undefined): Graph[] {
     if (!productPrices || !priceRetrievalParameters.selectedPrices) return [];
-
-    /* let labels = [];
-    for (let i = 0; i < productPrices.length; i++) {
-      labels.push(productPrices[i].FormattedProductDate);
-    } */
 
     let labels: string[] = [];
     let currentDate = new Date(this.ensureDate(priceRetrievalParameters.fromDate));

@@ -3,7 +3,7 @@ import { firstValueFrom } from 'rxjs';
 import { Market, Product, ProductPrice, ProductPriceType } from '../products/product.interface';
 import { MarketService } from '../market.service';
 import { ProductService } from '../product.service';
-import { DateHelperService } from '../date-format.service';
+import { DateHelperService } from '../date-helper.service';
 import { ProductPricesService } from '../productPrices.service';
 import { PlotGroup, PriceRetrievalParameters } from '../models/data-analysis.interface';
 import { PriceGraphPreparationService } from '../price-graph-preparation.service';

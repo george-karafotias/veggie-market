@@ -5,7 +5,7 @@ import { Product, ProductPrice } from '../products/product.interface';
 import { ProductPricesService } from '../productPrices.service';
 import { PriceGraphPreparationService } from '../price-graph-preparation.service';
 import { PriceGraph, PriceGraphCode } from '../models/price-graph.interface';
-import { DateHelperService } from '../date-format.service';
+import { DateHelperService } from '../date-helper.service';
 
 @Component({
   selector: 'product',

@@ -48,7 +48,7 @@ export class DateHelperService {
         return Array.from(years);
     }
 
-    getYears(startYear: number, endYear: number): number[] {
+    private getYears(startYear: number, endYear: number): number[] {
         const years: number[] = [];
         for (let year = startYear; year <= endYear; year++) {
             years.push(year);
