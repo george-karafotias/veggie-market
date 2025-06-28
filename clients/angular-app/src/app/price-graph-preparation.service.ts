@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Market, Product, ProductPrice } from "./products/product.interface";
-import { Graph, PriceGraph, PriceGraphCode } from "./models/price-graph.interface";
+import { Graph, LineSeries, PriceGraph, PriceGraphCode } from "./models/price-graph.interface";
 import { PlotGroup, PriceRetrievalParameters } from "./models/data-analysis.interface";
 import { DateHelperService } from "./date-helper.service";
 
@@ -14,29 +14,13 @@ export class PriceGraphPreparationService {
   public prepareLineGraphs(productPrices: ProductPrice[], priceRetrievalParameters: PriceRetrievalParameters, groupBy: PlotGroup | undefined): Graph[] {
     if (!productPrices || !priceRetrievalParameters.selectedPrices) return [];
 
-    let labels: string[] = [];
-    let currentDate = new Date(this.ensureDate(priceRetrievalParameters.fromDate));
-    const endDate = this.ensureDate(priceRetrievalParameters.toDate);
-    while (currentDate <= endDate) {
-      labels.push(this.dateHelperService.formatDay(currentDate));
-      currentDate.setDate(currentDate.getDate() + 1);
+    if (groupBy === PlotGroup.Market) {
+      return this.groupGraphsByMarket(productPrices, priceRetrievalParameters);
+    } else {
+      let graphs = [];
+      graphs.push(this.createLineGraph(priceRetrievalParameters, this.createLineSeriesCollection(productPrices, priceRetrievalParameters), 'Chart'));
+      return graphs;
     }
-
-    let lineSeriesCollection = this.createLineGraph(productPrices, priceRetrievalParameters);
-
-    const graphData = {
-      labels: labels,
-      datasets: lineSeriesCollection
-    };
-    const graphOptions = this.prepareLineGraphOptions();
-    return [{
-      data: graphData,
-      options: graphOptions
-    }];
-  }
-
-  private ensureDate(date: Date | undefined): Date {
-    return date ?? new Date();
   }
 
   public prepareLineGraph(productPrices: ProductPrice[], selectedPriceGraphs: PriceGraph[]): Graph | undefined {
@@ -70,21 +54,70 @@ export class PriceGraphPreparationService {
       labels: labels,
       datasets: datasets
     };
-    const graphOptions = this.prepareLineGraphOptions();
+    const graphOptions = this.createLineGraphOptions();
     return {
       data: graphData,
       options: graphOptions
     }
   }
 
-  private createLineGraph(productPrices: ProductPrice[], priceRetrievalParameters: PriceRetrievalParameters): any[] {
-    let lineSeriesCollection: any[] = [];
+  private createHorizontalAxisDateLabels(priceRetrievalParameters: PriceRetrievalParameters): string[] {
+    let labels: string[] = [];
+    let currentDate = new Date(this.ensureDate(priceRetrievalParameters.fromDate));
+    const endDate = this.ensureDate(priceRetrievalParameters.toDate);
+    while (currentDate <= endDate) {
+      labels.push(this.dateHelperService.formatDay(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return labels;
+  }
+
+  private groupGraphsByMarket(productPrices: ProductPrice[], priceRetrievalParameters: PriceRetrievalParameters): Graph[] {
+    const selectedYears: number[] = this.dateHelperService.calculateFullYearsList(priceRetrievalParameters.fromDate, priceRetrievalParameters.toDate);
+
+    let graphs: Graph[] = [];
+    priceRetrievalParameters.selectedMarkets.forEach(market => {
+      let seriesCollection: LineSeries[] = [];
+
+      selectedYears.forEach(year => {
+        priceRetrievalParameters.selectedProducts.forEach(product => {
+          priceRetrievalParameters.selectedPrices.forEach(priceType => {
+            let seriesTitle = product.ProductName + ' ' + year + ' - ' + priceType.ProductPriceTypeName;
+            const filteredPrices: ProductPrice[] = this.filterPricesByMarketProductAndYear(productPrices, market, product, year);
+            seriesCollection.push(this.createLineSeries(seriesTitle, priceType.ProductPriceTypeId, filteredPrices));
+          })
+        })
+      })
+
+      graphs.push(this.createLineGraph(priceRetrievalParameters, seriesCollection, market.MarketName));
+    });
+
+    return graphs;
+  }
+
+  private ensureDate(date: Date | undefined): Date {
+    return date ?? new Date();
+  }
+
+  private createLineGraph(priceRetrievalParameters: PriceRetrievalParameters, lineSeriesCollection: LineSeries[], title: string): Graph {
+    const graphData = {
+      labels: this.createHorizontalAxisDateLabels(priceRetrievalParameters),
+      datasets: lineSeriesCollection
+    };
+    return {
+      data: graphData,
+      options: this.createLineGraphOptions()
+    };
+  }
+
+  private createLineSeriesCollection(productPrices: ProductPrice[], priceRetrievalParameters: PriceRetrievalParameters): LineSeries[] {
+    let lineSeriesCollection: LineSeries[] = [];
 
     priceRetrievalParameters.selectedMarkets.forEach(market => {
       priceRetrievalParameters.selectedProducts.forEach(product => {
         priceRetrievalParameters.selectedPrices.forEach(price => {
           const seriesTitle = market.MarketName + ' - ' + product.ProductName + ' - ' + price.ProductPriceTypeName;
-          const filteredProductPrices: ProductPrice[] = this.filterPrices(productPrices, market, product);
+          const filteredProductPrices: ProductPrice[] = this.filterPricesByMarketAndProduct(productPrices, market, product);
           lineSeriesCollection.push(this.createLineSeries(seriesTitle, price.ProductPriceTypeId, filteredProductPrices));
         })
       });
@@ -93,7 +126,7 @@ export class PriceGraphPreparationService {
     return lineSeriesCollection;
   }
 
-  private createLineSeries(title: string, priceType: string, prices: ProductPrice[]): any {
+  private createLineSeries(title: string, priceType: string, prices: ProductPrice[]): LineSeries {
     let lineSeriesData: number[] = [];
     for (let i = 0; i < prices.length; i++) {
       let price = prices[i][priceType as keyof ProductPrice];
@@ -111,10 +144,21 @@ export class PriceGraphPreparationService {
     };
   }
 
-  private filterPrices(productPrices: ProductPrice[], market: Market, product: Product): ProductPrice[] {
+  private filterPricesByMarketAndProduct(productPrices: ProductPrice[], market: Market, product: Product): ProductPrice[] {
     let filteredProductPrices: ProductPrice[] = [];
     productPrices.forEach(productPrice => {
       if (productPrice.Market?.MarketId === market.MarketId && productPrice.Product?.ProductId === product.ProductId) {
+        filteredProductPrices.push(productPrice);
+      }
+    });
+    return filteredProductPrices;
+  }
+
+  private filterPricesByMarketProductAndYear(productPrices: ProductPrice[], market: Market, product: Product, year: number): ProductPrice[] {
+    let filteredProductPrices: ProductPrice[] = [];
+    productPrices.forEach(productPrice => {
+      const priceYear = this.extractYearFromFormattedDate(productPrice.FormattedProductDate);
+      if (productPrice.Market?.MarketId === market.MarketId && productPrice.Product?.ProductId === product.ProductId && priceYear === year) {
         filteredProductPrices.push(productPrice);
       }
     });
@@ -153,7 +197,7 @@ export class PriceGraphPreparationService {
     return graphMap.get(selectedPriceGraph.code);
   }
 
-  private prepareLineGraphOptions() {
+  private createLineGraphOptions() {
     return {
       responsive: true,
       maintainAspectRatio: true,
@@ -183,5 +227,9 @@ export class PriceGraphPreparationService {
         }
       }
     };
+  }
+
+  private extractYearFromFormattedDate(formattedDate: string): number {
+    return Number(formattedDate.substring(formattedDate.length - 4));
   }
 }

@@ -14,6 +14,15 @@ export interface PriceGraph {
 }
 
 export interface Graph {
+    title?: string,
     data: any,
     options: any
+}
+
+export interface LineSeries {
+    label: string,
+    data: number[],
+    fill: boolean,
+    borderColor: string,
+    tension: number
 }
