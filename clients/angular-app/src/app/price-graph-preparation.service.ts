@@ -16,6 +16,10 @@ export class PriceGraphPreparationService {
 
     if (groupBy === PlotGroup.Market) {
       return this.groupGraphsByMarket(productPrices, priceRetrievalParameters);
+    } else if (groupBy === PlotGroup.Product) {
+      return this.groupGraphsByProduct(productPrices, priceRetrievalParameters);
+    } else if (groupBy === PlotGroup.Price) {
+      return this.groupGraphsByPrice(productPrices, priceRetrievalParameters);
     } else {
       let graphs = [];
       graphs.push(this.createLineGraph(priceRetrievalParameters, this.createLineSeriesCollection(productPrices, priceRetrievalParameters), 'Chart'));
@@ -90,6 +94,52 @@ export class PriceGraphPreparationService {
       })
 
       graphs.push(this.createLineGraph(priceRetrievalParameters, seriesCollection, market.MarketName));
+    });
+
+    return graphs;
+  }
+
+  private groupGraphsByProduct(productPrices: ProductPrice[], priceRetrievalParameters: PriceRetrievalParameters): Graph[] {
+    const selectedYears: number[] = this.dateHelperService.calculateFullYearsList(priceRetrievalParameters.fromDate, priceRetrievalParameters.toDate);
+
+    let graphs: Graph[] = [];
+    priceRetrievalParameters.selectedProducts.forEach(product => {
+      let seriesCollection: LineSeries[] = [];
+
+      selectedYears.forEach(year => {
+        priceRetrievalParameters.selectedMarkets.forEach(market => {
+          priceRetrievalParameters.selectedPrices.forEach(priceType => {
+            let seriesTitle = market.MarketName + ' ' + year + ' - ' + priceType.ProductPriceTypeName;
+            const filteredPrices: ProductPrice[] = this.filterPricesByMarketProductAndYear(productPrices, market, product, year);
+            seriesCollection.push(this.createLineSeries(seriesTitle, priceType.ProductPriceTypeId, filteredPrices));
+          })
+        })
+      })
+
+      graphs.push(this.createLineGraph(priceRetrievalParameters, seriesCollection, product.ProductName));
+    });
+
+    return graphs;
+  }
+
+  private groupGraphsByPrice(productPrices: ProductPrice[], priceRetrievalParameters: PriceRetrievalParameters): Graph[] {
+    const selectedYears: number[] = this.dateHelperService.calculateFullYearsList(priceRetrievalParameters.fromDate, priceRetrievalParameters.toDate);
+
+    let graphs: Graph[] = [];
+    priceRetrievalParameters.selectedPrices.forEach(priceType => {
+      let seriesCollection: LineSeries[] = [];
+
+      selectedYears.forEach(year => {
+        priceRetrievalParameters.selectedMarkets.forEach(market => {
+          priceRetrievalParameters.selectedProducts.forEach(product => {
+            let seriesTitle = market.MarketName + ' ' + year + ' - ' + product.ProductName;
+            const filteredPrices: ProductPrice[] = this.filterPricesByMarketProductAndYear(productPrices, market, product, year);
+            seriesCollection.push(this.createLineSeries(seriesTitle, priceType.ProductPriceTypeId, filteredPrices));
+          })
+        })
+      })
+
+      graphs.push(this.createLineGraph(priceRetrievalParameters, seriesCollection, priceType.ProductPriceTypeName));
     });
 
     return graphs;
