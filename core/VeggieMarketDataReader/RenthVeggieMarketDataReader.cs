@@ -81,8 +81,10 @@ namespace VeggieMarketDataReader
             string extraCategory = NormalizePrice(Convert.ToString(row[EXTRA_CATEGORY_PRICE_COLUMN_INDEX]));
             string category1 = NormalizePrice(Convert.ToString(row[CATEGORY1_PRICE_COLUMN_INDEX]));
             double[] category1MinMaxPrice = ExtractMinMaxPrice(category1);
+            ProcessMinMaxPrices(ref category1MinMaxPrice);
             string category2 = NormalizePrice(Convert.ToString(row[CATEGORY2_PRICE_COLUMN_INDEX]));
             double[] category2MinMaxPrice = ExtractMinMaxPrice(category2);
+            ProcessMinMaxPrices(ref category2MinMaxPrice);
             string dominantPrice = NormalizePrice(Convert.ToString(row[DOMINANT_PRICE_COLUMN_INDEX]));
             string previousWeekDominantPrice = NormalizePrice(Convert.ToString(row[PREVIOUS_WEEK_DOMINANT_PRICE_COLUMN_INDEX]));
             string previousYearDominantPrice = NormalizePrice(Convert.ToString(row[PREVIOUS_YEAR_DOMINANT_PRICE_COLUMN_INDEX]));
@@ -90,7 +92,7 @@ namespace VeggieMarketDataReader
             ProductPrice productPrice = new ProductPrice(product, productDate, market);
             if (!string.IsNullOrEmpty(extraCategory) && double.TryParse(extraCategory, NumberStyles.Any, culture, out double extraCategoryDouble))
             {
-                productPrice.ExtraCategory = extraCategoryDouble;
+                productPrice.ExtraCategory = ProcessPriceAgainstMax(extraCategoryDouble);
             }
             if (category1MinMaxPrice != null)
             {
@@ -104,18 +106,35 @@ namespace VeggieMarketDataReader
             }
             if (!string.IsNullOrEmpty(dominantPrice) && double.TryParse(dominantPrice, NumberStyles.Any, culture, out double dominantPriceDouble))
             {
-                productPrice.DominantPrice = dominantPriceDouble;
+                productPrice.DominantPrice = ProcessPriceAgainstMax(dominantPriceDouble);
             }
             if (!string.IsNullOrEmpty(previousWeekDominantPrice) && double.TryParse(previousWeekDominantPrice, NumberStyles.Any, culture, out double previousWeekDominantPriceDouble))
             {
-                productPrice.PreviousWeekDominantPrice = previousWeekDominantPriceDouble;
+                productPrice.PreviousWeekDominantPrice = ProcessPriceAgainstMax(previousWeekDominantPriceDouble);
             }
             if (!string.IsNullOrEmpty(previousYearDominantPrice) && double.TryParse(previousYearDominantPrice, NumberStyles.Any, culture, out double previousYearDominantPriceDouble))
             {
-                productPrice.PreviousYearDominantPrice = previousYearDominantPriceDouble;
+                productPrice.PreviousYearDominantPrice = ProcessPriceAgainstMax(previousYearDominantPriceDouble);
             }
 
             return productPrice;
+        }
+
+        private void ProcessMinMaxPrices(ref double[] minMaxPrices)
+        {
+            if (minMaxPrices == null || minMaxPrices.Length != 2) return;
+            if (minMaxPrices[0] > minMaxPrices[1])
+            {
+                minMaxPrices[0] /= 10;
+                if (minMaxPrices[0] > minMaxPrices[1]) minMaxPrices[0] /= 100;
+            }
+        }
+
+        private double? ProcessPriceAgainstMax(double? price)
+        {
+            const double MAX_VALUE = 100;
+            if (!price.HasValue || price.Value < MAX_VALUE) return price;
+            return price.Value / MAX_VALUE;
         }
     }
 }
