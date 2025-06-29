@@ -43,6 +43,9 @@
     </div>
 
     <div class="column">
-        <p-chart *ngFor="let graph of graphs" type="line" [data]="graph.data" />
+        <div *ngFor="let graph of graphs">
+            <h3>{{graph.title}}</h3>
+            <p-chart type="line" [data]="graph.data" />
+        </div>
     </div>
 </div>

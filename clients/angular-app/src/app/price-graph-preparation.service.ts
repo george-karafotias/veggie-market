@@ -155,6 +155,7 @@ export class PriceGraphPreparationService {
       datasets: lineSeriesCollection
     };
     return {
+      title: title,
       data: graphData,
       options: this.createLineGraphOptions()
     };

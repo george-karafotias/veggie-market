@@ -82,9 +82,11 @@ export class DataAnalysisComponent implements OnInit {
   updatePlotGroups() {
     if (!(this.selectedMarkets.length + this.selectedProducts.length + this.selectedProductPriceTypes.length > 4)) {
       this.selectedPlotGroups = [];
+      this.selectedPlotGroup = undefined;
       return;
     }
 
+    this.selectedPlotGroups = [];
     if (this.selectedMarkets.length > 1) this.selectedPlotGroups.push(PlotGroup.Market);
     if (this.selectedProducts.length > 1) this.selectedPlotGroups.push(PlotGroup.Product);
     if (this.selectedProductPriceTypes.length > 1) this.selectedPlotGroups.push(PlotGroup.Price);
